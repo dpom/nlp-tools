@@ -1,12 +1,15 @@
-(defproject nlp-tools "0.1-dev01"
+(defproject nlptools "0.1-dev01"
   :description "FIXME: write description"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-alpha19"]
                  [com.taoensso/timbre "4.10.0"]
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
+                 [org.clojure/tools.cli "0.3.5"]
+                 [org.clojure/tools.reader "1.0.5"]
                  ]
   :pedantic? :warning
+  :main ^:skip-aot nlptools.core
   :plugins [[s3-wagon-private "1.1.2" :exclusions [commons-logging commons-codec]]
             [lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
             [jonase/eastwood "0.2.4"]
@@ -25,6 +28,6 @@
                                   [eftest "0.3.1" :exclusions [org.clojure/tools.namespace]]
                                   [org.clojure/tools.trace "0.7.9"]
                                   ]}
-             :uberjar {:aot [nlp-core.core]}}
+             :uberjar {:aot [nlptools.core]}}
  
 )
