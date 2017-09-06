@@ -1,6 +1,6 @@
-(ns nlp-tools.core-test
+(ns nlptools.core-test
   (:require [clojure.test :refer :all]
-            [nlp-tools.core :refer :all]))
+            [nlptools.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

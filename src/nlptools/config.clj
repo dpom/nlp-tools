@@ -21,3 +21,7 @@
     (if (.exists cfgfile)
       (merge (edn/read-string (slurp cfgfile)) options)
       options)))
+
+(defn prep-igconfig [config]
+  (doto config ig/load-namespaces))
+

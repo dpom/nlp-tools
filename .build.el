@@ -1,6 +1,6 @@
 ;; project settings
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
-(setq ent-project-name "nlp-tools")
+(setq ent-project-name "nlptools")
 (setq ent-clean-regexp "~$\\|\\.tex$")
 (setq ent-project-config-filename "README.org")
 

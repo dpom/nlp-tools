@@ -6,6 +6,18 @@
   [taoensso.timbre :as log]
 ))
 
+
+(defn build-igconfig
+  "Based on application options build the ig config.
+
+  Args:
+  options (map): the application options.
+
+  Returns:
+  (map): the ig config."
+  [options]
+  )
+
 (defn create
   "Brief
 
@@ -15,5 +27,9 @@
   Returns:
   (vector): [ret msg] "
   [options ]
-  [2 nil]
-  )
+  (let [igconfig (build-igconfig options)
+        system (ig/init igconfig) ]
+
+    (ig/halt! system)
+    [2 nil]
+    ))

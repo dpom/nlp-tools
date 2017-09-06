@@ -3,10 +3,14 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-alpha19"]
                  [com.taoensso/timbre "4.10.0"]
+                 [com.fzakaria/slf4j-timbre "0.3.7"]
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.reader "1.0.5"]
+                 [org.clojure/java.jdbc "0.7.1"]
+                 [mysql/mysql-connector-java "5.1.44"]
+                 [hikari-cp "1.7.6"]
                  ]
   :pedantic? :warning
   :main ^:skip-aot nlptools.core
