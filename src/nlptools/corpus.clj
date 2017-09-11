@@ -4,8 +4,10 @@
   [clojure.java.io :as io]
   [clojure.string :as str]
   [clojure.test :refer :all]
-  [taoensso.timbre :as log]
-))
+  [taoensso.timbre :as log])
+  (:import
+   [org.jsoup Jsoup])
+)
 
 
 (defn build-igconfig
@@ -19,18 +21,27 @@
   [options]
   )
 
+(defn strip-html-tags
+  "Function strips HTML tags from string."
+  [s]
+  (.text (Jsoup/parse s)))
+
 (defn filter-row [row]
   (-> row
-      :text))
+      :text
+      strip-html-tags))
 
 (defn write-corpus! [filename, resultset]
   (with-open [w (clojure.java.io/writer filename)]
     (reduce  (fn [total row]
-               (.write w row)
-               (.newLine w)
-               (.write w (str/join (repeat 50 "*")))
-               (.newLine w)
-               (inc total))
+               (if (str/blank? row)
+                 total
+                 (do
+                   (.write w row)
+                   (.newLine w)
+                   (.write w (str/join (repeat 50 "*")))
+                   (.newLine w)
+                   (inc total))))
              0 resultset)))
 
 (defn create-corpus! [system filename]

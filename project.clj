@@ -11,6 +11,7 @@
                  [org.clojure/java.jdbc "0.7.1"]
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]
+                 [org.jsoup/jsoup "1.10.3"]
                  ]
   :pedantic? :warning
   :main ^:skip-aot nlptools.core
