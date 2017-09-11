@@ -5,6 +5,7 @@
                :database-name      "claims"
                :server-name        "gen-mysql9483-all-dev.om1.c.emag.network"
                :port-number        13353}
+
  :nlptools.module/logger {:level    :debug
                           :ns-whitelist  ["nlptools.*"]
                           :ns-blacklist  ["taoensso.*"]

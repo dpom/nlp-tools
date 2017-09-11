@@ -31,3 +31,21 @@
 (j/query db
          ["select sheet_text as text from  sheets where subsidiary_id = 1"]
          {:result-set-fn first})
+
+(def db (get system :nlptools/db))
+
+(.query db ["select sheet_text as text from  sheets where subsidiary_id = 1"] nil first)
+
+(defn write-corpus [filename, resultset]
+  (with-open [w (clojure.java.io/writer filename)]
+    (reduce  (fn [total row]
+               (.write w (:text row))
+               (.newLine w)
+               (inc total))
+             0 resultset)))
+
+(.query db ["select sheet_text as text from  sheets where subsidiary_id = 1"] nil (partial write-corpus "corpus.txt"))
+
+(require '[nlptools.corpus :refer :all])
+
+(create-corpus! system "corpus.txt")

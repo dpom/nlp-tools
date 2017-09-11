@@ -6,7 +6,6 @@
    [clojure.tools.namespace.repl :refer [refresh]]
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
-   [eftest.runner :as eftest]
    [taoensso.timbre :as timbre]
    [integrant.core :as ig]
    [integrant.repl :refer [clear halt go init prep reset]]
@@ -17,9 +16,6 @@
 
 (defn dev-prep [config]
   (doto config ig/load-namespaces))
-
-(defn test []
-  (eftest/run-tests (eftest/find-tests "src")))
 
 (clojure.tools.namespace.repl/set-refresh-dirs "dev/src" "src")
 

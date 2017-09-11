@@ -7,7 +7,7 @@
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
                  [org.clojure/tools.cli "0.3.5"]
-                 [org.clojure/tools.reader "1.0.5"]
+                 [org.clojure/tools.reader "1.1.0"]
                  [org.clojure/java.jdbc "0.7.1"]
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]
@@ -20,7 +20,6 @@
             [lein-kibit "0.1.6-beta2" :exclusions [org.clojure/clojure]]
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]
-            [lein-eftest "0.3.1"]
             [lein-codox "0.10.3" :exclusions [org.clojure/clojure]]]
   :repl-options {:init-ns user}
   :profiles {:check {:global-vars {*warn-on-reflection* true}}
@@ -29,7 +28,6 @@
                    :test-paths ["src"]
                    :dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [integrant/repl "0.2.0" :exclusions [org.clojure/tools.namespace]]
-                                  [eftest "0.3.1" :exclusions [org.clojure/tools.namespace]]
                                   [org.clojure/tools.trace "0.7.9"]
                                   ]}
              :uberjar {:aot [nlptools.core]}}

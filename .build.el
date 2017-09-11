@@ -27,7 +27,7 @@
 
 (task 'tree '() "tree dependencies" '(lambda (&optional x) "lein do clean, deps :tree"))
 
-(task 'tests '() "run tests" '(lambda (&optional x) "lein eftest :no-colors"))
+(task 'tests '() "run tests" '(lambda (&optional x) "lein test"))
 
 (task 'libupdate () "update project libraries" '(lambda (&optional x) "lein ancient :no-colors"))
 

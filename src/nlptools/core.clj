@@ -104,5 +104,5 @@
     ;; Execute program with options
     (let [act (partial action (cfg/set-config options default_config_filename))]
       (case (first arguments)
-        "create" (act corpus/create "The corpus is created.")
+        "create" (act corpus/create-command "The corpus is created.")
         (exit 1 (usage summary))))))
