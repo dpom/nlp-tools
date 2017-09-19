@@ -1,5 +1,5 @@
-(defproject nlptools "0.1-dev01"
-  :description "FIXME: write description"
+(defproject nlptools "0.1-dev02"
+  :description "Tools for Natural Language Processing"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-alpha19"]
                  [com.taoensso/timbre "4.10.0"]
@@ -12,7 +12,12 @@
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]
                  [org.jsoup/jsoup "1.10.3"]
+                 [edu.mit.ll/mitie "0.8"]
+                 [org.languagetool/language-ro "3.8"]
+                 [org.apache.opennlp/opennlp-tools "1.8.2"]
+                 [snowball-stemmer "0.1.0"]
                  ]
+  :repositories [["localrepo" "file:lib"]]
   :pedantic? :warning
   :main ^:skip-aot nlptools.core
   :plugins [[s3-wagon-private "1.1.2" :exclusions [commons-logging commons-codec]]

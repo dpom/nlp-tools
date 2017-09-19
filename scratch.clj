@@ -49,3 +49,49 @@
 (require '[nlptools.corpus :refer :all])
 
 (create-corpus! system "corpus.txt")
+
+(import '[org.languagetool.language Romanian])
+
+(def ro (Romanian.))
+
+(require '[clojure.pprint :as pp]) 
+
+(pp/pprint (.getCountries ro))  
+
+(def tok (.getWordTokenizer ro)) 
+
+(.tokenize tok "Aceasta este o propzitie.") 
+
+(def tagger (.getTagger ro)) 
+
+
+(def taged_sentence (.tag tagger (.tokenize tok "Aceasta este o propzitie."))) 
+
+(.getToken (first taged_sentence)) 
+(.getReadings (first taged_sentence)) 
+
+
+(import '[opennlp.tools.stemmer.snowball SnowballStemmer]) 
+
+(def stemmer (SnowballStemmer. SnowballStemmer/ALGORITHM/ROMANIAN)) 
+
+
+(import '[opennlp.tools.stemmer.snowball romanianStemmer]) 
+
+
+(def stemmer (romanianStemmer.)) 
+
+(.stem stemmer "lasi") 
+
+(require '[stemmer.snowball :as snowball]) 
+
+(def stemmer (snowball/stemmer :romanian)) 
+
+(stemmer "lasi") 
+
+(stemmer "băieţel") 
+
+
+(stemmer "femeile") 
+
+(stemmer "fete") 
