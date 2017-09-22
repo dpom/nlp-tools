@@ -12,3 +12,4 @@ pom.xml.asc
 /.projectile
 /corpus.txt
 /tmp/
+/ema.train

@@ -1,4 +1,4 @@
-(ns nlptools.db
+(ns nlptools.component.db
   (:require
    [clojure.java.jdbc :as j]
    [hikari-cp.core :as hik]
@@ -16,9 +16,9 @@
          resultset-fn-map (if resultset-fn {:result-set-fn resultset-fn})]
         (j/query dbspec sql (merge row-fn-map resultset-fn-map)))))
 
-(defmethod ig/init-key :nlptools/db [_ spec]
+(defmethod ig/init-key :nlptools.component/db [_ spec]
     (->Boundary {:datasource (hik/make-datasource (dissoc spec :logger))}))
 
 
-(defmethod ig/halt-key! :nlptools/db [_ db]
+(defmethod ig/halt-key! :nlptools.component/db [_ db]
   (hik/close-datasource (get-in db [:dbspec :datasource])))

@@ -95,3 +95,51 @@
 (stemmer "femeile") 
 
 (stemmer "fete") 
+
+(import java.util.Properties)
+
+(defn get-version [dep]
+  (let [path (str "META-INF/maven/" (or (namespace dep) (name dep))
+                  "/" (name dep) "/pom.properties")
+        props (io/resource path)]
+    (when props
+      (with-open [stream (io/input-stream props)]
+        (let [props (doto (Properties.) (.load stream))]
+          (.getProperty props "version"))))))
+
+(get-version 'nlptools) 
+(get-version 'org.clojure/clojure) 
+
+
+(def db (get system :nlptools/mongo)) 
+
+(def resultset (.query db "nlp" {:is_valid true} ["text" "entities"]))  
+
+(defn write-corpus! [filename, resultset]
+  (with-open [w (clojure.java.io/writer filename)]
+    (reduce  (fn [total {:keys [text entities]}]
+               (let [intent (get entities :intent "necunoscut")]
+                   (.write w (format "%s %s" intent text))
+                   (.newLine w)
+                   (inc total)))
+             0 resultset))) 
+
+(write-corpus! "ema.train" resultset) 
+
+
+(require '[opennlp.nlp :as onlp]) 
+(require '[opennlp.treebank :as tb]) 
+(require '[opennlp.tools.train :as train]) 
+
+(def cat-model (train/train-document-categorization "ro" "ema.train")) 
+
+(def get-category (onlp/make-document-categorizer cat-model)) 
+
+(get-category "Vreau un telefon") 
+(get-category "Vreau un cadou") 
+(get-category "Ce stii despre  ultima mea comanda") 
+(get-category "Vreau produse din categoria laptopuri") 
+
+(def intent (get system :nlptools/intent)) 
+
+(.get-intent intent "Vreau un telefon") 

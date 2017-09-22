@@ -1,14 +1,25 @@
 {
- :nlptools/db {:adapter            "mysql"
-               :username           "root"
-               :password           ""
-               :database-name      "claims"
-               :server-name        "gen-mysql9483-all-dev.om1.c.emag.network"
-               :port-number        13353}
+ ;; :nlptools.component/db {:adapter            "mysql"
+ ;;               :username           "root"
+ ;;               :password           ""
+ ;;               :database-name      "claims"
+ ;;               :server-name        "gen-mysql9483-all-dev.om1.c.emag.network"
+ ;;               :port-number        13353
+ ;;               :logger             :nlptools.component/logger}
+ 
+ :nlptools/intent {:language "ro"
+                   :trainfile "ema.train"
+                   :logger             :nlptools.component/logger                  }
 
- :nlptools.module/logger {:level    :debug
-                          :ns-whitelist  ["nlptools.*"]
-                          :ns-blacklist  ["taoensso.*"]
-                          :appender {:println (println-appender {:stream :auto})}}
+ :nlptools.component/mongo {:database-name      "emastage"
+                            :server-name        "gift-mongo1-ro-prod.emag.network"
+                            :port-number        27017
+                            :logger             :nlptools.component/logger}
+
+
+ :nlptools.component/logger {:level    :debug
+                             :ns-whitelist  ["nlptools.*"]
+                             :ns-blacklist  ["taoensso.*"]
+                             :appender {:println (println-appender {:stream :auto})}}
 
  }
