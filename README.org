@@ -19,7 +19,9 @@ My main focus is on Romanian language but with small modifications it could be u
    :END:
 
 For lein add in you project.clj:
-https://img.shields.io/clojars/v/dpom/nlptools.svg
+
+[[https://clojars.org/dpom/nlptools][https://img.shields.io/clojars/v/dpom/nlptools.svg]]
+
 
 
 
