@@ -33,8 +33,10 @@
 
 (task 'package '() "package the library" '(lambda (&optional x) "lein do clean, uberjar"))
 
-(task 'install '() "install in local .m2" '(lambda (&optional x) "lein do pom, jar, install"))
+;; (task 'install '() "install in local .m2" '(lambda (&optional x) "lein do pom, jar, install"))
 
+
+(task 'deploy '() "deploy to clojars" '(lambda (&optional x) "lein deploy clojars"))
 
 ;; Local Variables:
 ;; no-byte-compile: t

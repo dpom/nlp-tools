@@ -1,4 +1,25 @@
 {
+
+ :nlptools/intent {:language "ro"
+                   :corpus   #ig/ref :nlptools/intent-corpus
+                   :logger   #ig/ref :nlptools.component/logger}
+
+ :nlptools/intent-corpus {:db       #ig/ref :nlptools.component/mongo
+                          :filepath "/tmp/ema.train"
+                          :logger   #ig/ref :nlptools.component/logger}
+
+
+ :nlptools.component/mongo {:database-name "emastage"
+                            :server-name   "gift-mongo1-ro-prod.emag.network"
+                            :port-number   27017
+                            :logger        #ig/ref :nlptools.component/logger}
+
+
+ :nlptools.component/logger {:level         :debug
+                             :ns-whitelist  ["nlptools.*"]
+                             :ns-blacklist  ["taoensso.*"]
+                             :appender      {:println (println-appender {:stream :auto})}}
+
  ;; :nlptools.component/db {:adapter            "mysql"
  ;;               :username           "root"
  ;;               :password           ""
@@ -7,19 +28,4 @@
  ;;               :port-number        13353
  ;;               :logger             :nlptools.component/logger}
  
- :nlptools/intent {:language "ro"
-                   :trainfile "ema.train"
-                   :logger             :nlptools.component/logger                  }
-
- :nlptools.component/mongo {:database-name      "emastage"
-                            :server-name        "gift-mongo1-ro-prod.emag.network"
-                            :port-number        27017
-                            :logger             :nlptools.component/logger}
-
-
- :nlptools.component/logger {:level    :debug
-                             :ns-whitelist  ["nlptools.*"]
-                             :ns-blacklist  ["taoensso.*"]
-                             :appender {:println (println-appender {:stream :auto})}}
-
  }

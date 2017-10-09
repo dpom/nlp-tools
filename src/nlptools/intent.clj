@@ -14,8 +14,8 @@
   (get-intent [this text] (get (get-category text) :best-category "necunoscut")))
 
 (defmethod ig/init-key :nlptools/intent [_ spec]
-  (let [{:keys [language trainfile]} spec
-        cat-model (train/train-document-categorization language trainfile)
+  (let [{:keys [language corpus]} spec
+        cat-model (train/train-document-categorization language (:filepath corpus))
         get-category (onlp/make-document-categorizer cat-model)]
     (->Boundary cat-model get-category)))
 

@@ -143,3 +143,7 @@
 (def intent (get system :nlptools/intent)) 
 
 (.get-intent intent "Vreau un telefon") 
+
+;; (alter-var-root #'state/system (fn [sys] (halt-system sys) (ig/init state/config)))
+(alter-var-root #'system (fn [sys] (ig/init config)))
+
