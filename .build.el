@@ -1,6 +1,6 @@
 ;; project settings
 (setq ent-project-home (file-name-directory (if load-file-name load-file-name buffer-file-name)))
-(setq ent-project-name "nlp-tools")
+(setq ent-project-name "nlptools")
 (setq ent-clean-regexp "~$\\|\\.tex$")
 (setq ent-project-config-filename "README.org")
 
@@ -27,14 +27,16 @@
 
 (task 'tree '() "tree dependencies" '(lambda (&optional x) "lein do clean, deps :tree"))
 
-(task 'tests '() "run tests" '(lambda (&optional x) "lein eftest :no-colors"))
+(task 'tests '() "run tests" '(lambda (&optional x) "lein test"))
 
 (task 'libupdate () "update project libraries" '(lambda (&optional x) "lein ancient :no-colors"))
 
 (task 'package '() "package the library" '(lambda (&optional x) "lein do clean, uberjar"))
 
-(task 'install '() "install in local .m2" '(lambda (&optional x) "lein do pom, jar, install"))
+;; (task 'install '() "install in local .m2" '(lambda (&optional x) "lein do pom, jar, install"))
 
+
+(task 'deploy '() "deploy to clojars" '(lambda (&optional x) "lein deploy clojars"))
 
 ;; Local Variables:
 ;; no-byte-compile: t

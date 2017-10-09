@@ -10,3 +10,6 @@ pom.xml.asc
 .hgignore
 .hg/
 /.projectile
+/corpus.txt
+/tmp/
+/ema.train
