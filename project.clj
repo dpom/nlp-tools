@@ -1,5 +1,6 @@
-(defproject dpom/nlptools "0.1-dev05"
+(defproject dpom/nlptools "0.2"
   :description "Tools for Natural Language Processing"
+  :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-beta2"]
                  [com.taoensso/timbre "4.10.0"]

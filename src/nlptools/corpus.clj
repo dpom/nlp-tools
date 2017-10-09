@@ -39,8 +39,6 @@
                  (do
                    (.write w row)
                    (.newLine w)
-                   (.write w (str/join (repeat 50 "*")))
-                   (.newLine w)
                    (inc total))))
              0 resultset)))
 
