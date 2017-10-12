@@ -147,3 +147,14 @@
 ;; (alter-var-root #'state/system (fn [sys] (halt-system sys) (ig/init state/config)))
 (alter-var-root #'system (fn [sys] (ig/init config)))
 
+(require '[duct.logger :as logger]) 
+
+(defrecord TestLogger [logs]
+  logger/Logger
+  (-log [_ level ns-str file line id event data]
+    (swap! logs conj [event data]))) 
+
+(def  logger   (->TestLogger (atom []))) 
+(.init intent (get system :nlptools/intent-corpus) logger) 
+
+@(:logs logger) 
