@@ -4,7 +4,6 @@
   [clojure.tools.reader.edn :as edn]
   [clojure.java.io :as io]
   [clojure.test :refer :all]
-  [taoensso.timbre :as log]
   ))
 
 (defn set-config

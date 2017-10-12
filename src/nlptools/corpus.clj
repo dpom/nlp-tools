@@ -3,8 +3,7 @@
   [integrant.core :as ig]
   [clojure.java.io :as io]
   [clojure.string :as str]
-  [clojure.test :refer :all]
-  [taoensso.timbre :as log])
+  [clojure.test :refer :all])
   (:import
    [org.jsoup Jsoup])
 )

@@ -2,7 +2,6 @@
   (:require
    [clojure.string :as str]
    [clojure.tools.cli :refer [parse-opts]]
-   [taoensso.timbre :as log]
    [environ.core :refer [env]]
    [clojure.test :refer :all]
    [nlptools.config :as cfg]
@@ -13,7 +12,7 @@
 (def default_config_filename ".nlptools.cfg")
 
 (defn print-msg
-  "Print informal messages on the console and in log.
+  "Print informal messages on the console.
 
   Args:
     options (map):  options map, used key :quiet
@@ -22,7 +21,6 @@
   Returns:
     nothing"
   [options msg]
-  (log/info msg)
   (if-not (:quiet options)
     (println msg)))
 

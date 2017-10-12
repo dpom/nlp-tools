@@ -2,30 +2,35 @@
 
  :nlptools/intent {:language "ro"
                    :corpus   #ig/ref :nlptools/intent-corpus
-                   :logger   #ig/ref :nlptools.component/logger}
+                   :logger   #ig/ref :duct.logger/timbre}
 
- :nlptools/intent-corpus {:db       #ig/ref :nlptools.component/mongo
+ :nlptools/intent-corpus {:db       #ig/ref :nlptools.module/mongo
                           :filepath "/tmp/ema.train"
-                          :logger   #ig/ref :nlptools.component/logger}
+                          :logger   #ig/ref :duct.logger/timbre}
 
 
- :nlptools.component/mongo {:database-name "emastage"
-                            :server-name   "gift-mongo1-ro-prod.emag.network"
-                            :port-number   27017
-                            :logger        #ig/ref :nlptools.component/logger}
+ :nlptools.module/mongo {:database-name "emastage"
+                         :server-name   "gift-mongo1-ro-prod.emag.network"
+                         :port-number   27017
+                         :logger        #ig/ref :duct.logger/timbre}
 
 
- :nlptools.component/logger {:level         :debug
-                             :ns-whitelist  ["nlptools.*"]
-                             :ns-blacklist  ["taoensso.*"]
-                             :appender      {:println (println-appender {:stream :auto})}}
-
- ;; :nlptools.component/db {:adapter            "mysql"
+  ;; :nlptools.component/db {:adapter            "mysql"
  ;;               :username           "root"
  ;;               :password           ""
  ;;               :database-name      "claims"
  ;;               :server-name        "gen-mysql9483-all-dev.om1.c.emag.network"
  ;;               :port-number        13353
- ;;               :logger             :nlptools.component/logger}
+ ;;               }
  
+ :duct.logger/timbre {:level    :debug
+                      :set-root-config? true
+                      :appenders {:duct.logger.timbre/spit #ig/ref :duct.logger.timbre/spit,
+                                  :duct.logger.timbre/brief #ig/ref :duct.logger.timbre/brief}},
+
+
+ :duct.logger.timbre/println {}
+ :duct.logger.timbre/brief {:min-level :report},
+ :duct.logger.timbre/spit {:fname "logs/dev.log"}
+
  }

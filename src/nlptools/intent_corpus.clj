@@ -2,15 +2,15 @@
   (:require
    [integrant.core :as ig]
    [clojure.java.io :as io]
-
-   [taoensso.timbre :as log]))
+   [duct.logger :refer [log]]
+   ))
 
 (defrecord Boundary [filepath db])
 
 (defmethod ig/init-key :nlptools/intent-corpus [_ spec]
-  (let [{:keys [db filepath]} spec
+  (let [{:keys [db filepath logger]} spec
         resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
-    (log/debugf "start creating intent-corpus")
+    (log logger :info ::creating-intent-corpus)
     (with-open [w (io/writer filepath)]
       (reduce  (fn [total {:keys [text entities]}]
                  (let [intent (get entities :intent "necunoscut")]

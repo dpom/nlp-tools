@@ -1,8 +1,9 @@
-(ns nlptools.component.mongo
+(ns nlptools.module.mongo
   (:require
    [monger.core :as mg]
    [monger.collection :as mc]
    [integrant.core :as ig]
+   [duct.logger :refer [log]]
   ))
 
 (defprotocol Mongo
@@ -15,11 +16,12 @@
   (query [this coll where] (mc/find-maps db coll where))
   (query [this coll where fields] (mc/find-maps db coll where fields)))
 
-(defmethod ig/init-key :nlptools.component/mongo [_ spec]
-  (let [conn (mg/connect {:host (:server-name spec) :port (:port-number spec)})
-        db (mg/get-db conn (:database-name spec))]
+(defmethod ig/init-key :nlptools.module/mongo [_ {:keys [:server-name :port-number :database-name :logger]}]
+  (let [conn (mg/connect {:host server-name :port port-number})
+        db (mg/get-db conn database-name)]
+    (log logger :info ::connect {:dbname database-name})
     (->Boundary conn db)))
 
 
-(defmethod ig/halt-key! :nlptools.component/mongo [_ mongodb]
+(defmethod ig/halt-key! :nlptools.module/mongo [_ mongodb]
   (mg/disconnect (:conn mongodb)))
