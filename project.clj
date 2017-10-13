@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.3-dev01"
+(defproject dpom/nlptools "0.3.0"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
