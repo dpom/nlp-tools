@@ -158,3 +158,16 @@
 (.init intent (get system :nlptools/intent-corpus) logger) 
 
 @(:logs logger) 
+
+(def corpus-intent (get system :nlptools.corpus/intent)) 
+
+(.init corpus-intent logger) 
+
+
+(def stemmer (get system :nlptools/stemmer)) 
+
+(.get-root stemmer "fetita") 
+(.get-root stemmer "fetiţa") 
+(.get-root stemmer "fetitele") 
+
+(.init stemmer logger) 

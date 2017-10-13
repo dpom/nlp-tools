@@ -20,8 +20,7 @@
       (reset! cat-model (train/train-document-categorization lang filepath))
       (reset! get-category (onlp/make-document-categorizer @cat-model))
       this))
-  (get-intent [this text] (get (@get-category text) :best-category "necunoscut"))
-  )
+  (get-intent [this text] (get (@get-category text) :best-category "necunoscut")))
 
 (defmethod ig/init-key :nlptools/intent [_ spec]
   (let [{:keys [language corpus logger]} spec]

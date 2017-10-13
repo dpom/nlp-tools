@@ -6,6 +6,7 @@
    [clojure.tools.namespace.repl :refer [refresh]]
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
+   [duct.logger :as logger] 
    [integrant.core :as ig]
    [integrant.repl :refer [clear halt go init prep reset]]
    [integrant.repl.state :refer [config system]]))

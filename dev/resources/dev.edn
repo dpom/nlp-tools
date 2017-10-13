@@ -1,10 +1,12 @@
 {
-
- :nlptools/intent {:language "ro"
-                   :corpus   #ig/ref :nlptools/intent-corpus
+ :nlptools/stemmer {:language "ro"
                    :logger   #ig/ref :duct.logger/timbre}
 
- :nlptools/intent-corpus {:db       #ig/ref :nlptools.module/mongo
+ :nlptools/intent {:language "ro"
+                   :corpus   #ig/ref :nlptools.corpus/intent
+                   :logger   #ig/ref :duct.logger/timbre}
+
+ :nlptools.corpus/intent {:db       #ig/ref :nlptools.module/mongo
                           :filepath "/tmp/ema.train"
                           :logger   #ig/ref :duct.logger/timbre}
 
@@ -31,6 +33,6 @@
 
  :duct.logger.timbre/println {}
  :duct.logger.timbre/brief {:min-level :report},
- :duct.logger.timbre/spit {:fname "logs/dev.log"}
+ :duct.logger.timbre/spit {:fname "logs/dev.log" :min-level :debug}
 
  }
