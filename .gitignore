@@ -13,3 +13,4 @@ pom.xml.asc
 /corpus.txt
 /tmp/
 /ema.train
+/logs/dev.log

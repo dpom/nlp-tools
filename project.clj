@@ -1,19 +1,21 @@
-(defproject dpom/nlptools "0.2"
+(defproject dpom/nlptools "0.3.0"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-beta2"]
-                 [com.taoensso/timbre "4.10.0"]
-                 [com.fzakaria/slf4j-timbre "0.3.7"]
-                 [environ "1.1.0"]
-                 [integrant "0.6.1"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.reader "1.1.0"]
+                 [environ "1.1.0"]
+                 [integrant "0.6.1"]
+                 [duct/logger "0.2.1"]
+                 [duct/logger.timbre "0.4.1"]
+                 ;; [com.fzakaria/slf4j-timbre "0.3.7"]
                  [org.clojure/java.jdbc "0.7.1"]
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]
                  [com.novemberain/monger "3.1.0"]
                  [org.jsoup/jsoup "1.10.3"]
+                 [org.languagetool/language-ro "3.8"]
                  [clojure-opennlp "0.4.0"]
                  ;; [org.apache.opennlp/opennlp-tools "1.8.2"]
                  [snowball-stemmer "0.1.0"]
@@ -29,7 +31,7 @@
   :deploy-repositories [["clojars" {:creds :gpg}]]
   :profiles {:check {:global-vars {*warn-on-reflection* true}}
              :dev {:source-paths   ["dev/src"]
-                   :resource-paths ["dev/resources"]
+                   :resource-paths ["resources" "dev/resources"]
                    :test-paths ["src"]
                    :dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [integrant/repl "0.2.0" :exclusions [org.clojure/tools.namespace]]

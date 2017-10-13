@@ -50,9 +50,9 @@
 
 (create-corpus! system "corpus.txt")
 
-(import '[org.languagetool.language Romanian])
+(import '[org.languagetool.language Romanian]) 
 
-(def ro (Romanian.))
+(def ro (Romanian.)) 
 
 (require '[clojure.pprint :as pp]) 
 
@@ -147,3 +147,58 @@
 ;; (alter-var-root #'state/system (fn [sys] (halt-system sys) (ig/init state/config)))
 (alter-var-root #'system (fn [sys] (ig/init config)))
 
+(require '[duct.logger :as logger]) 
+
+(defrecord TestLogger [logs]
+  logger/Logger
+  (-log [_ level ns-str file line id event data]
+    (swap! logs conj [event data]))) 
+
+(def  logger   (->TestLogger (atom []))) 
+(.init intent (get system :nlptools/intent-corpus) logger) 
+
+@(:logs logger) 
+
+(def corpus-intent (get system :nlptools.corpus/intent)) 
+
+(.init corpus-intent logger) 
+
+
+(def stemmer (get system :nlptools/stemmer)) 
+
+(.get-root stemmer "fetita") 
+(.get-root stemmer "fetiţa") 
+(.get-root stemmer "fetitele") 
+
+(.init stemmer logger) 
+
+(def stop-words (slurp (io/resource "stop_words.ro")))
+
+(require '[clojure.string :as str]) 
+
+(defn split-words
+  [text]
+  (str/split (str/lower-case text) #"\s+")) 
+
+
+
+(def stop-words (into (hash-set) (-> (io/resource "stop_words.ro")
+                    slurp
+                    split-words
+                    ))) 
+
+(remove stop-words (split-words "Acesta este un text")) 
+(remove stop-words (split-words "Vreau sa cumpar un televizor")) 
+
+
+(def stopwords (get system :nlptools/stopwords)) 
+(.remove-stopwords stopwords "Acesta este un text") 
+(.init stopwords logger) 
+
+@(:logs logger) 
+
+(split-words "aceasta, este o propozitie?") 
+
+(.tokenize tok "Aceasta, este o propozitie?") 
+
+(.remove-stopwords stopwords "Aceasta, este o propozitie?") 

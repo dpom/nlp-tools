@@ -6,7 +6,7 @@
    [clojure.tools.namespace.repl :refer [refresh]]
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
-   [taoensso.timbre :as timbre]
+   [duct.logger :as logger] 
    [integrant.core :as ig]
    [integrant.repl :refer [clear halt go init prep reset]]
    [integrant.repl.state :refer [config system]]))
@@ -21,9 +21,5 @@
 
 ;; (when (io/resource "local.clj")
 ;;   (load "local"))
-
-(defmethod ig/init-key ::logger [_ params]
-  (timbre/merge-config! params)
-  timbre/*config*)
 
 (integrant.repl/set-prep! (comp dev-prep read-config))
