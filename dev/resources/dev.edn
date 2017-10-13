@@ -1,6 +1,13 @@
 {
+
+ :nlptools/tokenizer {:logger   #ig/ref :duct.logger/timbre}
+ 
+ :nlptools/stopwords {:tokenizer #ig/ref :nlptools/tokenizer
+                      :logger   #ig/ref :duct.logger/timbre}
+ 
  :nlptools/stemmer {:language "ro"
-                   :logger   #ig/ref :duct.logger/timbre}
+                    :logger   #ig/ref :duct.logger/timbre}
+
 
  :nlptools/intent {:language "ro"
                    :corpus   #ig/ref :nlptools.corpus/intent

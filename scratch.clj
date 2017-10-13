@@ -50,9 +50,9 @@
 
 (create-corpus! system "corpus.txt")
 
-(import '[org.languagetool.language Romanian])
+(import '[org.languagetool.language Romanian]) 
 
-(def ro (Romanian.))
+(def ro (Romanian.)) 
 
 (require '[clojure.pprint :as pp]) 
 
@@ -171,3 +171,34 @@
 (.get-root stemmer "fetitele") 
 
 (.init stemmer logger) 
+
+(def stop-words (slurp (io/resource "stop_words.ro")))
+
+(require '[clojure.string :as str]) 
+
+(defn split-words
+  [text]
+  (str/split (str/lower-case text) #"\s+")) 
+
+
+
+(def stop-words (into (hash-set) (-> (io/resource "stop_words.ro")
+                    slurp
+                    split-words
+                    ))) 
+
+(remove stop-words (split-words "Acesta este un text")) 
+(remove stop-words (split-words "Vreau sa cumpar un televizor")) 
+
+
+(def stopwords (get system :nlptools/stopwords)) 
+(.remove-stopwords stopwords "Acesta este un text") 
+(.init stopwords logger) 
+
+@(:logs logger) 
+
+(split-words "aceasta, este o propozitie?") 
+
+(.tokenize tok "Aceasta, este o propozitie?") 
+
+(.remove-stopwords stopwords "Aceasta, este o propozitie?") 
