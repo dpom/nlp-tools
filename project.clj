@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.3.0"
+(defproject dpom/nlptools "0.3.1-dev06"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
@@ -7,7 +7,7 @@
                  [org.clojure/tools.reader "1.1.0"]
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
-                 [duct/logger "0.2.1"]
+                 ;; [duct/logger "0.2.1"]
                  [duct/logger.timbre "0.4.1"]
                  ;; [com.fzakaria/slf4j-timbre "0.3.7"]
                  [org.clojure/java.jdbc "0.7.1"]
@@ -27,6 +27,7 @@
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]
             [lein-codox "0.10.3" :exclusions [org.clojure/clojure]]]
+  :main ^:skip-aot nlptools.core
   :repl-options {:init-ns user}
   :deploy-repositories [["clojars" {:creds :gpg}]]
   :profiles {:check {:global-vars {*warn-on-reflection* true}}

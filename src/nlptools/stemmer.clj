@@ -20,7 +20,9 @@
     (log @logger :info ::init-stemmer {:lang lang})
     (reset! stemmer (snowball/stemmer (get languages-codes lang :romanian)))
     this)
-  (get-root [this text] (@stemmer text)))
+  (get-root [this text]
+    (log @logger :debug ::get-root {:text text})
+    (@stemmer text)))
 
 (defmethod ig/init-key :nlptools/stemmer [_ spec]
   (let [{:keys [language logger]} spec]

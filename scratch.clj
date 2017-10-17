@@ -202,3 +202,11 @@
 (.tokenize tok "Aceasta, este o propozitie?") 
 
 (.remove-stopwords stopwords "Aceasta, este o propozitie?") 
+
+(def stemmer (get system :nlptools/stemmer)) 
+
+(.get-root stemmer "fetita") 
+
+(.get-root stemmer "fetita fetitele") 
+
+(.get-root stemmer " fetita") 

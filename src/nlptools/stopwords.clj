@@ -27,11 +27,13 @@
                                            split-words
                                            )))
     this)
-  (remove-stopwords [this text] (->> text
-                                     str/lower-case
-                                     (.tokenize @tokenizer)
-                                     (remove punctuation)
-                                     (remove @stopwords))))
+  (remove-stopwords [this text]
+    (log @logger :debug ::remove-stopwords {:text text})
+    (->> text
+         str/lower-case
+         (.tokenize @tokenizer)
+         (remove punctuation)
+         (remove @stopwords))))
 
 (defmethod ig/init-key :nlptools/stopwords [_ spec]
   (let [{:keys [filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
