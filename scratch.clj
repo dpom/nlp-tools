@@ -210,3 +210,39 @@
 (.get-root stemmer "fetita fetitele") 
 
 (.get-root stemmer " fetita") 
+
+(defn keyword->namespaces [kw]
+  (if-let [ns (namespace (str kw))]
+    [(symbol ns)
+     (symbol (str ns "." (name kw)))])) 
+
+(keyword->namespaces 'nlptools.intent) 
+
+(symbol (str "nlptools." (name :corpus))) 
+(symbol (str "nlptools." (name :corpus.intent))) 
+
+(defn try-require [cmd]
+  (let [sym (symbol (str "nlptools." cmd))]
+    (try (do (require sym) sym)
+       (catch java.io.FileNotFoundException _)))) 
+
+(try-require "stemmer") 
+
+nlptools.stemmer/languages-codes 
+
+nlptools.stopwords/punctuation 
+
+(def stopw (try-require "stopwords")) 
+
+(defmacro run [x]
+  `(. ~x punctuation)) 
+
+(run nlptools.stopwords)  
+
+(require '[nlptools.command :as cmd])
+ 
+(cmd/help :stopwords)
+
+(cmd/help :stemmer)
+
+(cmd/help :cucu)

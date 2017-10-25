@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.3.1-dev06"
+(defproject dpom/nlptools "0.4.0-dev01"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
@@ -15,7 +15,7 @@
                  [hikari-cp "1.7.6"]
                  [com.novemberain/monger "3.1.0"]
                  [org.jsoup/jsoup "1.10.3"]
-                 [org.languagetool/language-ro "3.8"]
+                 [org.languagetool/language-ro "3.8" :exclusions [com.google.guava/guava]]
                  [clojure-opennlp "0.4.0"]
                  ;; [org.apache.opennlp/opennlp-tools "1.8.2"]
                  [snowball-stemmer "0.1.0"]

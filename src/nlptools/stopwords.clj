@@ -4,6 +4,7 @@
    [clojure.java.io :as io]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [nlptools.command :as cmd]
    ))
 
 (def punctuation #{"," "." " " "?" "!"})
@@ -38,3 +39,6 @@
 (defmethod ig/init-key :nlptools/stopwords [_ spec]
   (let [{:keys [filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
     (.init (->Boundary (atom nil) (atom nil) filepath (atom nil)) tokenizer logger)))
+
+(defmethod cmd/help :stopwords [_]
+  "stopwords - remove stopwords from the input")

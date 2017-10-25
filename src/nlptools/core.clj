@@ -6,6 +6,7 @@
    [clojure.test :refer :all]
    [nlptools.config :as cfg]
    [nlptools.corpus :as corpus]
+   [nlptools.command :as cmd]
    )
   (:gen-class))
 
@@ -27,10 +28,30 @@
 (def cli-options
   [
    ["-c" "--config FILE" "Configuration file" :default default_config_filename]
-   ["-o" "--outfilename FILE" "Output file name"]
-   ["-q" "--quiet"]
    ["-h" "--help"]
+   ["-i" "--in FILE" "Input file name"]
+   ["-l" "--lang LANGUAGE" "Language" :default "ro"]
+   ["-o" "--out FILE" "Output file name"]
+   ["-q" "--quiet"]
+   ["-t" "--text TEXT" "The text to be parsed"]  
    ])
+
+(def commands [:stemmer :stopwords])
+
+(defn try-require [cmd]
+  (let [sym (symbol (str "nlptools." (name cmd)))]
+    (try (do (require sym) sym)
+         (catch java.io.FileNotFoundException _))))
+
+(defn commands-help
+  []
+  (str/join
+   \newline
+    (map (fn [k]
+           (try-require k)
+           (cmd/help k))
+         commands)))
+
 
 (defn usage
   "Generate the usage text.
@@ -51,7 +72,7 @@
     options_summary
     ""
     "Actions:"
-    "create    Create a corpus"
+    (commands-help)
     ""
     "Please refer to the user's guide for more information."]))
 
@@ -78,29 +99,20 @@
   (System/exit status))
 
 
-(defn action
-  "Handler for action.
+(defmethod cmd/run :help [_ _ summary]
+  (exit 0 (usage summary)))
 
-   Args:
-    options (map): action options 
-    actionfn (function): the function which run the action
-    okmsg (string): the message to display if the action finishes normally"
-  [options actionfn okmsg]
-  (let [[ret err] (actionfn options)]
-    (if err
-      (println (str  "exception: " err))
-      (print-msg options okmsg))))
+(defmethod cmd/run :default [_ _ summary]
+  (exit 1 (usage summary)))
+
+(defmethod cmd/run :errors [_ _ errors]
+  (exit 1 (error-msg errors)))
 
 (defn -main
   [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
-    ;; Handle help and error conditions
     (cond
-      (:help options) (exit 0 (usage summary))
-      (not= (count arguments) 1) (exit 1 (usage summary))
-      errors (exit 1 (error-msg errors)))
-    ;; Execute program with options
-    (let [act (partial action (cfg/set-config options default_config_filename))]
-      (case (first arguments)
-        "create" (act corpus/create-command "The corpus is created.")
-        (exit 1 (usage summary))))))
+      (:help options) (cmd/run :help options summary)
+      (not= (count arguments) 1) (cmd/run :errors options summary)
+      errors (cmd/run :errors options errors)
+      :else (cmd/run (keyword (first arguments)) (cfg/set-config options default_config_filename) summary))))

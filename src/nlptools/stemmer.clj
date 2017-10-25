@@ -3,6 +3,7 @@
    [stemmer.snowball :as snowball]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [nlptools.command :as cmd]
    ))
 
 (def languages-codes {"ro" :romanian
@@ -27,3 +28,9 @@
 (defmethod ig/init-key :nlptools/stemmer [_ spec]
   (let [{:keys [language logger]} spec]
     (.init (->Boundary (atom nil) language (atom nil)) logger)))
+
+(defmethod cmd/help :stemmer [_]
+  "stemmer - reduce inflected (or sometimes derived) words to their word stem ")
+
+(defmethod cmd/run :stemmer [_ options summary]
+  (exit 0 (usage summary)))
