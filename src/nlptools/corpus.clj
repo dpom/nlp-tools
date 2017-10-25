@@ -49,18 +49,4 @@
 
 
 
-(defn create-command
-  "Brief
 
-  Args:
-  options (map): the action options
-
-  Returns:
-  (vector): [ret msg] "
-  [options ]
-  (let [igconfig (build-igconfig options)
-        system (ig/init igconfig) ]
-
-    (ig/halt! system)
-    [2 nil]
-    ))

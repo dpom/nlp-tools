@@ -10,7 +10,6 @@
    )
   (:gen-class))
 
-(def default_config_filename ".nlptools.cfg")
 
 (defn print-msg
   "Print informal messages on the console.
@@ -27,10 +26,10 @@
 
 (def cli-options
   [
-   ["-c" "--config FILE" "Configuration file" :default default_config_filename]
+   ["-c" "--config FILE" "Configuration file" :default cfg/default-config-filename]
    ["-h" "--help"]
    ["-i" "--in FILE" "Input file name"]
-   ["-l" "--lang LANGUAGE" "Language" :default "ro"]
+   ["-l" "--language LANGUAGE" "Language" :default "ro"]
    ["-o" "--out FILE" "Output file name"]
    ["-q" "--quiet"]
    ["-t" "--text TEXT" "The text to be parsed"]  
@@ -103,7 +102,7 @@
   (exit 0 (usage summary)))
 
 (defmethod cmd/run :default [_ _ summary]
-  (exit 1 (usage summary)))
+  (exit 2 (usage summary)))
 
 (defmethod cmd/run :errors [_ _ errors]
   (exit 1 (error-msg errors)))
@@ -113,6 +112,8 @@
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
     (cond
       (:help options) (cmd/run :help options summary)
-      (not= (count arguments) 1) (cmd/run :errors options summary)
+      (not= (count arguments) 1) (cmd/run :default options summary)
       errors (cmd/run :errors options errors)
-      :else (cmd/run (keyword (first arguments)) (cfg/set-config options default_config_filename) summary))))
+      :else (let [k (keyword (first arguments))]
+              (try-require k)
+              (cmd/run k options summary)))))

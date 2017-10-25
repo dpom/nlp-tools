@@ -9,5 +9,9 @@
 
 (defmulti run
   "Run a command."
-  {:arglists '([key options summary])}
+  {:arglists '([key config summary])}
  (fn [k _ _] k))
+
+
+
+

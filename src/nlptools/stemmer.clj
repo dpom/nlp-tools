@@ -4,6 +4,7 @@
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
+   [nlptools.config :as cfg]
    ))
 
 (def languages-codes {"ro" :romanian
@@ -33,4 +34,13 @@
   "stemmer - reduce inflected (or sometimes derived) words to their word stem ")
 
 (defmethod cmd/run :stemmer [_ options summary]
-  (exit 0 (usage summary)))
+  (let [opts  (cfg/set-config options)
+        config (merge (cfg/make-logger opts)
+                      {:nlptools/stemmer {:language (:language opts)
+                                          :logger (ig/ref :duct.logger/timbre)}})
+        system (ig/init (cfg/prep-igconfig config))
+        stemmer (:nlptools/stemmer system)
+        word (get opts :text "")]
+    (printf "word: %s, stem: %s\n" word (.get-root stemmer word))
+    (ig/halt! system)
+    0))
