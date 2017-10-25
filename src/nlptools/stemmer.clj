@@ -41,6 +41,6 @@
         system (ig/init (cfg/prep-igconfig config))
         stemmer (:nlptools/stemmer system)
         word (get opts :text "")]
-    (printf "word: %s, stem: %s\n" word (.get-root stemmer word))
+    (printf "word: %s,\nstem: %s\n" word (.get-root stemmer word))
     (ig/halt! system)
     0))

@@ -11,18 +11,7 @@
   (:gen-class))
 
 
-(defn print-msg
-  "Print informal messages on the console.
 
-  Args:
-    options (map):  options map, used key :quiet
-    msg (string): the message to display 
-
-  Returns:
-    nothing"
-  [options msg]
-  (if-not (:quiet options)
-    (println msg)))
 
 (def cli-options
   [
@@ -32,10 +21,23 @@
    ["-l" "--language LANGUAGE" "Language" :default "ro"]
    ["-o" "--out FILE" "Output file name"]
    ["-q" "--quiet"]
-   ["-t" "--text TEXT" "The text to be parsed"]  
+   ["-t" "--text TEXT" "The text to be parsed"]
    ])
 
-(def commands [:stemmer :stopwords])
+(def commands [:stemmer :stopwords :intent])
+
+(defn print-msg
+  "Print informal messages on the console.
+
+  Args:
+    options (map):  options map, used key :quiet
+    msg (string): the message to display
+
+  Returns:
+    nothing"
+  [options msg]
+  (if-not (:quiet options)
+    (println msg)))
 
 (defn try-require [cmd]
   (let [sym (symbol (str "nlptools." (name cmd)))]
@@ -46,10 +48,10 @@
   []
   (str/join
    \newline
-    (map (fn [k]
-           (try-require k)
-           (cmd/help k))
-         commands)))
+   (map (fn [k]
+          (try-require k)
+          (cmd/help k))
+        commands)))
 
 
 (defn usage
@@ -57,7 +59,7 @@
 
   Args:
     options_summary (string): cli generated options help
-  
+
   Returns:
     (string): the usage text."
   [options_summary]

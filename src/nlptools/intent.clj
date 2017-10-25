@@ -4,6 +4,8 @@
    [opennlp.nlp :as onlp]
    [opennlp.tools.train :as train]
    [duct.logger :refer [log]]
+   [nlptools.command :as cmd]
+   [nlptools.config :as cfg]
    ))
 
 (defprotocol Intent
@@ -25,3 +27,19 @@
 (defmethod ig/init-key :nlptools/intent [_ spec]
   (let [{:keys [language corpus logger]} spec]
     (.init (->Boundary (atom nil) (atom nil) language (atom nil)) corpus logger)))
+
+(defmethod cmd/help :intent [_]
+  "intent - detect text intent")
+
+(defmethod cmd/run :intent [_ options summary]
+  (let [opts  (cfg/set-config options)
+        config (merge (cfg/make-logger opts)
+                      {:nlptools/intent {:language (:language opts)
+                                         :corpus {:filepath (:in opts)}
+                                          :logger (ig/ref :duct.logger/timbre)}})
+        system (ig/init (cfg/prep-igconfig config))
+        intent (:nlptools/intent system)
+        text (get opts :text "")]
+    (printf "text: %s,\nintent: %s\n" text (.get-intent intent text))
+    (ig/halt! system)
+    0))
