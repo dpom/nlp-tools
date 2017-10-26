@@ -17,7 +17,7 @@
                  [org.jsoup/jsoup "1.10.3"]
                  [org.languagetool/language-ro "3.8" :exclusions [com.google.guava/guava]]
                  [clojure-opennlp "0.4.0"]
-                 ;; [org.apache.opennlp/opennlp-tools "1.8.2"]
+                 [org.apache.opennlp/opennlp-tools "1.8.2"]
                  [snowball-stemmer "0.1.0"]
                  ]
   :pedantic? :warning
@@ -39,6 +39,7 @@
                                   [org.clojure/tools.trace "0.7.9"]
                                   ]}
              :uberjar {:aot [nlptools.core]}} 
+  :jvm-opts ["-Xmx2048m"]
   :pom-addition [:developers [:developer
                               [:name "Dan Pomohaci"]
                               [:email "dan.pomohaci@gmail.com"]

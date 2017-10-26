@@ -13,14 +13,14 @@
   (get-intent [this text]))
 
 
-(defrecord Boundary [cat-model get-category lang logger]
+(defrecord Boundary [model get-category lang logger]
   Intent
   (init [this corpus newlogger]
     (let [filepath (:filepath corpus)]
       (reset! logger newlogger)
       (log @logger :info ::init-intent {:lang lang :file filepath})
-      (reset! cat-model (train/train-document-categorization lang filepath))
-      (reset! get-category (onlp/make-document-categorizer @cat-model))
+      (reset! model (train/train-document-categorization lang filepath))
+      (reset! get-category (onlp/make-document-categorizer @model))
       this))
   (get-intent [this text] (get (@get-category text) :best-category "necunoscut")))
 
