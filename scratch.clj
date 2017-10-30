@@ -131,7 +131,7 @@
 (require '[opennlp.treebank :as tb]) 
 (require '[opennlp.tools.train :as train]) 
 
-(def cat-model (train/train-document-categorization "ro" "ema.train")) 
+(def cat-model (train/train "ro" "ema.train")) 
 
 (def get-category (onlp/make-document-categorizer cat-model)) 
 
@@ -246,3 +246,13 @@ nlptools.stopwords/punctuation
 (cmd/help :stemmer)
 
 (cmd/help :cucu)
+
+(require '[nlptools.model.classification :as model])
+
+(def cat-model (model/train "ro" "test/ema.train"))
+
+(require '[clojure.java.io :as io])
+
+(.serialize cat-model2 (io/as-file "test/ema2.bin"))
+
+(def cat-model2 (model/load "test/ema.bin"))

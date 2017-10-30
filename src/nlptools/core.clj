@@ -24,7 +24,7 @@
    ["-t" "--text TEXT" "The text to be parsed"]
    ])
 
-(def commands [:stemmer :stopwords :intent])
+(def commands [:stemmer :stopwords :intent :model.classification])
 
 (defn print-msg
   "Print informal messages on the console.
