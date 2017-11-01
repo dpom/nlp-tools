@@ -3,7 +3,6 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [nlptools.command :as cmd]
-   [nlptools.config :as cfg]
    [duct.logger :refer [log]])
   (:import
    [opennlp.tools.doccat
@@ -53,7 +52,7 @@
   "model.classification - build and save a classification model")
 
 (defmethod cmd/run :model.classification [_ options summary]
-  (let [opts  (cfg/set-config options)
+  (let [opts  (cmd/set-config options)
         {:keys [in out language]} opts
         model (train-model  language in)]
     (save-model model out)

@@ -256,3 +256,86 @@ nlptools.stopwords/punctuation
 (.serialize cat-model2 (io/as-file "test/ema2.bin"))
 
 (def cat-model2 (model/load "test/ema.bin"))
+
+
+(require '[nlptools.model.classification :as model])
+
+(import '[opennlp.tools.doccat
+  DoccatModel
+  DocumentCategorizerME])
+
+(def catmodel (model/load-model "test/ema.bin"))
+
+
+(defn parse-categories [outcomes-string outcomes]
+  "Given a string that represents the opennlp outcomes and an array of
+  probability outcomes, zip them into a map of category-probability pairs"
+  (zipmap
+   (map first (map rest (re-seq #"(\w+)\[.*?\]" outcomes-string)))
+   outcomes))
+
+(defn make-document-classifier
+[^DoccatModel model]
+(fn document-classifier
+  [text]
+  {:pre [(string? text)]}
+  (let [classifier (DocumentCategorizerME. model)
+        outcomes (.categorize classifier ^String text)]
+    (with-meta
+      {:best-category (.getBestCategory classifier outcomes)}
+      {:probabilities (parse-categories
+                       (.getAllResults classifier outcomes)
+                       outcomes)}))))
+
+(def cl (make-document-classifier catmodel))
+
+(def res (cl "vreau informatii despre comanda 1234567890"))
+
+(def classifier (DocumentCategorizerME. catmodel))
+
+(def text "vreau informatii despre comanda 1234567890")
+
+(def outcomes (.categorize classifier ^String text))
+
+(def bestcat (.getBestCategory classifier outcomes))
+
+(import '(opennlp.tools.tokenize TokenizerME
+                         SimpleTokenizer
+                         WhitespaceTokenizer
+                         TokenizerModel
+                         TokenSampleStream
+                         TokenizerFactory)
+        '(opennlp.tools.util Span))
+
+ 
+(def tokenizer SimpleTokenizer/INSTANCE)
+
+(require '[nlptools.tokenizer :as tok])
+
+(def tokenizer (tok/make-tokenizer model-tokenizer))
+
+
+(def res (.tokenize tokenizer "vreau informatii despre comanda 1234567890"))
+
+(require '[clojure.pprint :as pp])
+
+(pp/pprint res)
+
+
+(require '[nlptools.classification :as cat])
+
+(require '[nlptools.model.classification :as model])
+
+
+(def catmodel (model/load-model "test/ema.bin"))
+
+(def classifier (cat/make-document-classifier catmodel SimpleTokenizer/INSTANCE) )
+
+(def resp (classifier "vreau informatii despre comanda 1234567890"))
+
+resp
+
+
+(meta resp)
+
+

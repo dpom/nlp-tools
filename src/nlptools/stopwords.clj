@@ -5,7 +5,6 @@
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
-   [nlptools.config :as cfg]
    ))
 
 (def punctuation #{"," "." " " "?" "!"})
@@ -45,12 +44,12 @@
   "stopwords - remove stopwords from the input")
 
 (defmethod cmd/run :stopwords [_ options summary]
-  (let [opts  (cfg/set-config options)
-        config (merge (cfg/make-logger opts)
+  (let [opts  (cmd/set-config options)
+        config (merge (cmd/make-logger opts)
                       {:nlptools/stopwords {:tokenizer (ig/ref :nlptools/tokenizer)
                                           :logger (ig/ref :duct.logger/timbre)}
                        :nlptools/tokenizer {:logger  (ig/ref :duct.logger/timbre)}})
-        system (ig/init (cfg/prep-igconfig config))
+        system (ig/init (cmd/prep-igconfig config))
         stopwords (:nlptools/stopwords system)
         text (get opts :text "")]
     (printf "text         : %s,\nw/o stopwords: %s\n" text (str/join " "(.remove-stopwords stopwords text)))

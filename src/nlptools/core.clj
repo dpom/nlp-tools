@@ -4,7 +4,6 @@
    [clojure.tools.cli :refer [parse-opts]]
    [environ.core :refer [env]]
    [clojure.test :refer :all]
-   [nlptools.config :as cfg]
    [nlptools.corpus :as corpus]
    [nlptools.command :as cmd]
    )
@@ -15,7 +14,7 @@
 
 (def cli-options
   [
-   ["-c" "--config FILE" "Configuration file" :default cfg/default-config-filename]
+   ["-c" "--config FILE" "Configuration file" :default cmd/default-config-filename]
    ["-h" "--help"]
    ["-i" "--in FILE" "Input file name"]
    ["-l" "--language LANGUAGE" "Language" :default "ro"]
