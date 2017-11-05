@@ -6,7 +6,7 @@
    [clojure.test :refer :all]
    ))
 
-(def default-config-filename ".nlptools.cfg")
+(def default-config-filename ".nlptools.edn")
 
 (defn set-config
   "Set the configs map using command line options and the configuration file.
@@ -40,6 +40,13 @@
   identity)
 
 (defmethod help :default [_] " ")
+
+(defmulti syntax
+  "Returns the command syntax."
+  {:arglists '([key])}
+  identity)
+
+(defmethod syntax :default [_] " ")
 
 (defmulti run
   "Run a command."

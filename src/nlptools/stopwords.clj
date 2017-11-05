@@ -43,6 +43,9 @@
 (defmethod cmd/help :stopwords [_]
   "stopwords - remove stopwords from the input")
 
+(defmethod cmd/syntax :stopwords [_]
+  "nlptools stopwords -t TEXT")
+
 (defmethod cmd/run :stopwords [_ options summary]
   (let [opts  (cmd/set-config options)
         config (merge (cmd/make-logger opts)

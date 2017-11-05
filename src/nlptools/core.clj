@@ -23,7 +23,7 @@
    ["-t" "--text TEXT" "The text to be parsed"]
    ])
 
-(def commands [:stemmer :stopwords :intent :model.classification])
+(def commands [:stemmer :stopwords :classification :model.classification :corpus.intent])
 
 (defn print-msg
   "Print informal messages on the console.
@@ -52,6 +52,13 @@
           (cmd/help k))
         commands)))
 
+(defn syntax-help
+  []
+  (str/join
+   \newline
+   (map (fn [k]
+          (cmd/syntax k))
+        commands)))
 
 (defn usage
   "Generate the usage text.
@@ -73,6 +80,9 @@
     ""
     "Actions:"
     (commands-help)
+    ""
+    "Syntax examples:"
+    (syntax-help)
     ""
     "Please refer to the user's guide for more information."]))
 

@@ -51,6 +51,9 @@
 (defmethod cmd/help :model.classification [_]
   "model.classification - build and save a classification model")
 
+(defmethod cmd/syntax :model.classification [_]
+  "nlptools model.classification -i CORPUS-FILE -o MODEL-FILE -l LANGUAGE")
+
 (defmethod cmd/run :model.classification [_ options summary]
   (let [opts  (cmd/set-config options)
         {:keys [in out language]} opts

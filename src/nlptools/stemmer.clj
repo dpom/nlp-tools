@@ -32,6 +32,9 @@
 (defmethod cmd/help :stemmer [_]
   "stemmer - reduce inflected (or sometimes derived) words to their word stem ")
 
+(defmethod cmd/syntax :stemmer [_]
+  "nlptools stemmer -t TEXT")
+
 (defmethod cmd/run :stemmer [_ options summary]
   (let [opts  (cmd/set-config options)
         config (merge (cmd/make-logger opts)
