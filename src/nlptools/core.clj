@@ -4,7 +4,6 @@
    [clojure.tools.cli :refer [parse-opts]]
    [environ.core :refer [env]]
    [clojure.test :refer :all]
-   [nlptools.corpus :as corpus]
    [nlptools.command :as cmd]
    )
   (:gen-class))

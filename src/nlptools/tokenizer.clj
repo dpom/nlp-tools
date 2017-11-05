@@ -3,8 +3,8 @@
    [clojure.string :as str]
    [clojure.java.io :as io]
    [integrant.core :as ig]
-   [duct.logger :refer [log]]
-   [opennlp.span :as nspan])
+   [nlptools.span :as nspan]
+   [duct.logger :refer [log]])
   (:import
    (opennlp.tools.tokenize TokenizerME
                            SimpleTokenizer

@@ -1,24 +1,13 @@
-(ns nlptools.corpus
+(ns nlptools.corpus.claim
   (:require
   [integrant.core :as ig]
   [clojure.java.io :as io]
   [clojure.string :as str]
-  [clojure.test :refer :all])
+  [duct.logger :refer [log]]
+  [clojure.test :refer :all]
+  [nlptools.corpus.core :refer [Corpus]])
   (:import
-   [org.jsoup Jsoup])
-)
-
-
-(defn build-igconfig
-  "Based on application options build the ig config.
-
-  Args:
-  options (map): the application options.
-
-  Returns:
-  (map): the ig config."
-  [options]
-  )
+   [org.jsoup Jsoup]))
 
 (defn strip-html-tags
   "Function strips HTML tags from string."
@@ -41,12 +30,19 @@
                    (inc total))))
              0 resultset)))
 
-(defn create-corpus! [system filename]
-  (let [db (get system :nlptools/db)]
+
+(defrecord Boundary [filepath db logger]
+  Corpus
+  (build-corpus! [this]
+    (log logger :info ::creating-corpus {:file filepath})
     (.query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
             filter-row
-            (partial write-corpus! "corpus.txt"))))
-
+            (partial write-corpus! filepath))
+    this))
+ 
+(defmethod ig/init-key :nlptools.corpus/claim [_ spec]
+  (let [{:keys [db filepath logger]} spec]
+    (->Boundary filepath db logger)))
 
 
 
