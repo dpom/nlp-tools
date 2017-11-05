@@ -13,15 +13,24 @@ etc.
 
 My main focus is on Romanian language but with small modifications it could be use for other languages.  
 
-** Installation
-   :PROPERTIES:
-   :CUSTOM_ID: installation
-   :END:
+
+** Getting started
+
+*** CLI
+
+Clone the project.
+
+To see what commands are available run:
+#+BEGIN_SRC sh
+lein run -- -h
+#+END_SRC
+
+*** Lib
 
 For lein add in you project.clj:
 
 [[https://clojars.org/dpom/nlptools][https://img.shields.io/clojars/v/dpom/nlptools.svg]]
 
 
-
+See the [[https://dpom.github.io/nlp-tools][documentation]] for more information.
 

@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [test])
   (:require
    [clojure.repl :refer :all]
+   [clojure.pprint :as pp]
    [nlptools.core :as nlp]
    [clojure.tools.namespace.repl :refer [refresh]]
    [clojure.java.io :as io]

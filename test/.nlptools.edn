@@ -1,0 +1,7 @@
+{
+ :mongodb {:database-name "emastage2"
+           :server-name   "gift-mongo1-ro-prod.emag.network"
+           :port-number   27017}
+ 
+
+ }

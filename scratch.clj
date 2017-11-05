@@ -131,7 +131,7 @@
 (require '[opennlp.treebank :as tb]) 
 (require '[opennlp.tools.train :as train]) 
 
-(def cat-model (train/train-document-categorization "ro" "ema.train")) 
+(def cat-model (train/train "ro" "ema.train")) 
 
 (def get-category (onlp/make-document-categorizer cat-model)) 
 
@@ -202,3 +202,140 @@
 (.tokenize tok "Aceasta, este o propozitie?") 
 
 (.remove-stopwords stopwords "Aceasta, este o propozitie?") 
+
+(def stemmer (get system :nlptools/stemmer)) 
+
+(.get-root stemmer "fetita") 
+
+(.get-root stemmer "fetita fetitele") 
+
+(.get-root stemmer " fetita") 
+
+(defn keyword->namespaces [kw]
+  (if-let [ns (namespace (str kw))]
+    [(symbol ns)
+     (symbol (str ns "." (name kw)))])) 
+
+(keyword->namespaces 'nlptools.intent) 
+
+(symbol (str "nlptools." (name :corpus))) 
+(symbol (str "nlptools." (name :corpus.intent))) 
+
+(defn try-require [cmd]
+  (let [sym (symbol (str "nlptools." cmd))]
+    (try (do (require sym) sym)
+       (catch java.io.FileNotFoundException _)))) 
+
+(try-require "stemmer") 
+
+nlptools.stemmer/languages-codes 
+
+nlptools.stopwords/punctuation 
+
+(def stopw (try-require "stopwords")) 
+
+(defmacro run [x]
+  `(. ~x punctuation)) 
+
+(run nlptools.stopwords)  
+
+(require '[nlptools.command :as cmd])
+ 
+(cmd/help :stopwords)
+
+(cmd/help :stemmer)
+
+(cmd/help :cucu)
+
+(require '[nlptools.model.classification :as model])
+
+(def cat-model (model/train "ro" "test/ema.train"))
+
+(require '[clojure.java.io :as io])
+
+(.serialize cat-model2 (io/as-file "test/ema2.bin"))
+
+(def cat-model2 (model/load "test/ema.bin"))
+
+
+(require '[nlptools.model.classification :as model])
+
+(import '[opennlp.tools.doccat
+  DoccatModel
+  DocumentCategorizerME])
+
+(def catmodel (model/load-model "test/ema.bin"))
+
+
+(defn parse-categories [outcomes-string outcomes]
+  "Given a string that represents the opennlp outcomes and an array of
+  probability outcomes, zip them into a map of category-probability pairs"
+  (zipmap
+   (map first (map rest (re-seq #"(\w+)\[.*?\]" outcomes-string)))
+   outcomes))
+
+(defn make-document-classifier
+[^DoccatModel model]
+(fn document-classifier
+  [text]
+  {:pre [(string? text)]}
+  (let [classifier (DocumentCategorizerME. model)
+        outcomes (.categorize classifier ^String text)]
+    (with-meta
+      {:best-category (.getBestCategory classifier outcomes)}
+      {:probabilities (parse-categories
+                       (.getAllResults classifier outcomes)
+                       outcomes)}))))
+
+(def cl (make-document-classifier catmodel))
+
+(def res (cl "vreau informatii despre comanda 1234567890"))
+
+(def classifier (DocumentCategorizerME. catmodel))
+
+(def text "vreau informatii despre comanda 1234567890")
+
+(def outcomes (.categorize classifier ^String text))
+
+(def bestcat (.getBestCategory classifier outcomes))
+
+(import '(opennlp.tools.tokenize TokenizerME
+                         SimpleTokenizer
+                         WhitespaceTokenizer
+                         TokenizerModel
+                         TokenSampleStream
+                         TokenizerFactory)
+        '(opennlp.tools.util Span))
+
+ 
+(def tokenizer SimpleTokenizer/INSTANCE)
+
+(require '[nlptools.tokenizer :as tok])
+
+(def tokenizer (tok/make-tokenizer model-tokenizer))
+
+
+(def res (.tokenize tokenizer "vreau informatii despre comanda 1234567890"))
+
+(require '[clojure.pprint :as pp])
+
+(pp/pprint res)
+
+
+(require '[nlptools.classification :as cat])
+
+(require '[nlptools.model.classification :as model])
+
+
+(def catmodel (model/load-model "test/ema.bin"))
+
+(def classifier (cat/make-document-classifier catmodel SimpleTokenizer/INSTANCE) )
+
+(def resp (classifier "vreau informatii despre comanda 1234567890"))
+
+resp
+
+
+(meta resp)
+
+

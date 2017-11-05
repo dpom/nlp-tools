@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.3.0"
+(defproject dpom/nlptools "0.4.0"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
@@ -7,7 +7,7 @@
                  [org.clojure/tools.reader "1.1.0"]
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
-                 [duct/logger "0.2.1"]
+                 ;; [duct/logger "0.2.1"]
                  [duct/logger.timbre "0.4.1"]
                  ;; [com.fzakaria/slf4j-timbre "0.3.7"]
                  [org.clojure/java.jdbc "0.7.1"]
@@ -15,9 +15,8 @@
                  [hikari-cp "1.7.6"]
                  [com.novemberain/monger "3.1.0"]
                  [org.jsoup/jsoup "1.10.3"]
-                 [org.languagetool/language-ro "3.8"]
-                 [clojure-opennlp "0.4.0"]
-                 ;; [org.apache.opennlp/opennlp-tools "1.8.2"]
+                 [org.languagetool/language-ro "3.8" :exclusions [com.google.guava/guava]]
+                 [org.apache.opennlp/opennlp-tools "1.8.3"]
                  [snowball-stemmer "0.1.0"]
                  ]
   :pedantic? :warning
@@ -27,6 +26,7 @@
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]
             [lein-codox "0.10.3" :exclusions [org.clojure/clojure]]]
+  :main ^:skip-aot nlptools.core
   :repl-options {:init-ns user}
   :deploy-repositories [["clojars" {:creds :gpg}]]
   :profiles {:check {:global-vars {*warn-on-reflection* true}}
@@ -38,6 +38,7 @@
                                   [org.clojure/tools.trace "0.7.9"]
                                   ]}
              :uberjar {:aot [nlptools.core]}} 
+  :jvm-opts ["-Xmx2048m"]
   :pom-addition [:developers [:developer
                               [:name "Dan Pomohaci"]
                               [:email "dan.pomohaci@gmail.com"]
