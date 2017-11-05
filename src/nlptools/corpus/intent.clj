@@ -4,15 +4,15 @@
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
+   [nlptools.corpus.core :refer [Corpus]]
    ))
 
-(defprotocol Corpus
-  (build! [this]))
+
 
 (defrecord Boundary [filepath db logger]
   Corpus
-  (build! [this]
-    (log logger :info ::creating-corpus-intent {:file filepath})
+  (build-corpus! [this]
+    (log logger :info ::creating-corpus {:file filepath})
     (let [resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
       (with-open [w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
@@ -22,7 +22,7 @@
                      (.newLine w)
                      (inc counter)))
                              0 resultset)]
-          (log logger :info ::corpus-intent-created {:total total :file filepath})
+          (log logger :info ::corpus-created {:total total :file filepath})
           )))
     this))
  
@@ -45,7 +45,7 @@
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (.build! corpus)
+    (.build-corpus! corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))

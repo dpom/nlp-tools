@@ -1,8 +1,6 @@
 (ns nlptools.classification
   (:require
    [integrant.core :as ig]
-   [opennlp.nlp :as onlp]
-   [opennlp.tools.train :as train]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
    )
