@@ -9,9 +9,9 @@
 
 
 
-(defrecord Boundary [filepath db logger]
+(defrecord IntentCorpus [filepath db logger]
   Corpus
-  (build-corpus! [this]
+  (build-corpus [this]
     (log logger :info ::creating-corpus {:file filepath})
     (let [resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
       (with-open [w (io/writer filepath)]
@@ -28,7 +28,7 @@
  
 (defmethod ig/init-key :nlptools.corpus/intent [_ spec]
   (let [{:keys [db filepath logger]} spec]
-    (->Boundary filepath db logger)))
+    (->IntentCorpus filepath db logger)))
 
 (defmethod cmd/help :corpus.intent [_]
   "corpus.intent - create a corpus file for an intent type classification model.")
@@ -45,7 +45,7 @@
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (.build-corpus! corpus)
+    (.build-corpus corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))
