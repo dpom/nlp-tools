@@ -30,28 +30,24 @@
                          (.getAllResults classifier outcomes)
                          outcomes)}))))
 
-(defprotocol Classification
-  (get-category [this text]))
-
-(defrecord ClassifierTool [model tokenizer classifier logger]
+(defrecord ClassificationTool [model tokenizer classifier logger]
   Tool
-  (build-tool [this]
-    (log @logger :debug ::building-tool)
+  (build-tool! [this]
+    (log @logger :debug ::build-tool)
     (reset! classifier (make-document-classifier (.get-model model) (.get-model tokenizer))))
-  (set-logger [this newlogger]
+  (set-logger! [this newlogger]
     (reset! logger newlogger))
-  Classification
-  (get-category [this text]
+  (apply-tool [this text]
     (let [resp (@classifier text)]
-      (log @logger :debug ::get-category {:category resp :probabilities (meta resp)})
+      (log @logger :debug ::apply-tool {:category resp :probabilities (meta resp)})
       (get resp :best-category "necunoscut"))))
 
 (defmethod ig/init-key :nlptools.tool/classification [_ spec]
   (let [{:keys [model tokenizer logger]} spec]
     (log logger :debug ::init)
-    (let [classif (->ClassifierTool model tokenizer (atom nil) (atom nil))]
-      (.set-logger classif logger)
-      (.build-tool classif)
+    (let [classif (->ClassificationTool model tokenizer (atom nil) (atom nil))]
+      (.set-logger! classif logger)
+      (.build-tool! classif)
       classif)))
 
 
@@ -77,6 +73,6 @@
         system (ig/init (cmd/prep-igconfig config))
         classifier (get system k)
         text (get opts :text "")]
-    (printf "text: %s,\ncategory: %s\n" text (.get-category classifier text))
+    (printf "text: %s,\ncategory: %s\n" text (.apply-tool classifier text))
     (ig/halt! system)
     0))

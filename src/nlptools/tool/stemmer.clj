@@ -9,25 +9,26 @@
 (def languages-codes {"ro" :romanian
                       "en" :english})
 
-(defprotocol Stemmer
-  (init [this  logger])
-  (get-root [this text]))
-
 
 (defrecord StemmerTool [stemmer lang logger]
-  Stemmer
-  (init [this newlogger]
-    (reset! logger newlogger)
-    (log @logger :info ::init-stemmer {:lang lang})
+  Tool
+  (build-tool! [this]
+    (log @logger :info ::build-tool {:lang lang})
     (reset! stemmer (snowball/stemmer (get languages-codes lang :romanian)))
     this)
-  (get-root [this text]
-    (log @logger :debug ::get-root {:text text})
+  (set-logger! [this newlogger]
+    (reset! logger newlogger))
+  (apply-tool [this text]
+    (log @logger :debug ::apply-tool {:text text})
     (@stemmer text)))
 
 (defmethod ig/init-key :nlptools.tool/stemmer [_ spec]
   (let [{:keys [language logger]} spec]
-    (.init (->StemmerTool (atom nil) language (atom nil)) logger)))
+    (log logger :debug ::init)
+    (let [stemmer (->StemmerTool (atom nil) language (atom nil))]
+      (.set-logger! stemmer logger)
+      (.build-tool! stemmer)
+      stemmer)))
 
 (defmethod cmd/help :tool.stemmer [_]
   "tool.stemmer - reduce inflected (or sometimes derived) words to their word stem ")
@@ -44,6 +45,6 @@
         system (ig/init (cmd/prep-igconfig config))
         stemmer (get system k)
         word (get opts :text "")]
-    (printf "word: %s,\nstem: %s\n" word (.get-root stemmer word))
+    (printf "word: %s,\nstem: %s\n" word (.apply-tool stemmer word))
     (ig/halt! system)
     0))

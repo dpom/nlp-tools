@@ -37,7 +37,7 @@
     (.serialize ^TokenizerModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
-  (set-logger [this newlogger]
+  (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
 
@@ -51,7 +51,7 @@
     (log @logger :debug ::save-model {:action :no-action}))
   (get-model [this]
     SimpleTokenizer/INSTANCE)
-  (set-logger [this newlogger]
+  (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
 
@@ -65,7 +65,7 @@
     (log @logger :debug ::save-model {:action :no-action}))
   (get-model [this]
     WhitespaceTokenizer/INSTANCE)
-  (set-logger [this newlogger]
+  (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
 
@@ -79,7 +79,7 @@
   (let [{:keys [logger]} spec
         tokenizer (->SimpleTokModel (atom nil))]
     (log logger :info ::init-simple-tokenizer)
-    (.set-logger tokenizer logger)
+    (.set-logger! tokenizer logger)
     tokenizer))
 
 

@@ -38,7 +38,7 @@
     (.serialize ^DoccatModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
-  (set-logger [this newlogger]
+  (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
 
@@ -65,7 +65,7 @@
   (let [{:keys [language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
         classif (->ClassificationModel  binfile trainfile language (atom nil) (atom nil))]
     (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
-    (.set-logger classif logger)
+    (.set-logger! classif logger)
     (if loadbin?
       (.load-model classif)
       (.train-model classif))
