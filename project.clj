@@ -22,7 +22,7 @@
   :pedantic? :warning
   :plugins [[lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
             [jonase/eastwood "0.2.4"]
-            [lein-kibit "0.1.6-beta2" :exclusions [org.clojure/clojure]]
+            [lein-kibit "0.1.6" :exclusions [org.clojure/clojure]]
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]
             [lein-codox "0.10.3" :exclusions [org.clojure/clojure]]]

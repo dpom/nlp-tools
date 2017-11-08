@@ -1,11 +1,11 @@
-(ns nlptools.stopwords
+(ns nlptools.tool.stopwords
   (:require
    [clojure.string :as str]
    [clojure.java.io :as io]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
-   [nlptools.command :as cmd]
-   ))
+   [nlptools.tool.core :refer [Tool]]
+   [nlptools.command :as cmd]))
 
 (def punctuation #{"," "." " " "?" "!"})
 
@@ -36,24 +36,25 @@
          (remove punctuation)
          (remove @stopwords))))
 
-(defmethod ig/init-key :nlptools/stopwords [_ spec]
+(defmethod ig/init-key :nlptools.tool/stopwords [_ spec]
   (let [{:keys [filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
     (.init (->Boundary (atom nil) (atom nil) filepath (atom nil)) tokenizer logger)))
 
-(defmethod cmd/help :stopwords [_]
-  "stopwords - remove stopwords from the input")
+(defmethod cmd/help :tool.stopwords [_]
+  "tool.stopwords - remove stopwords from the input")
 
-(defmethod cmd/syntax :stopwords [_]
-  "nlptools stopwords -t TEXT")
+(defmethod cmd/syntax :tool.stopwords [_]
+  "nlptools tool.stopwords -t TEXT")
 
-(defmethod cmd/run :stopwords [_ options summary]
+(defmethod cmd/run :tool.stopwords [_ options summary]
   (let [opts  (cmd/set-config options)
+        k :nlptools.tool/stopwords
         config (merge (cmd/make-logger opts)
-                      {:nlptools/stopwords {:tokenizer (ig/ref :nlptools/tokenizer)
+                      {k {:tokenizer (ig/ref :nlptools/tokenizer)
                                           :logger (ig/ref :duct.logger/timbre)}
                        :nlptools/tokenizer {:logger  (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
-        stopwords (:nlptools/stopwords system)
+        stopwords (get system k)
         text (get opts :text "")]
     (printf "text         : %s,\nw/o stopwords: %s\n" text (str/join " "(.remove-stopwords stopwords text)))
     (ig/halt! system)

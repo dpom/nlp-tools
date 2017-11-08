@@ -338,4 +338,6 @@ resp
 
 (meta resp)
 
+(def s2 (ig/init config [:nlptools/stemmer])) 
 
+(instance? duct.logger.Logger (:duct.logger/timbre s2))  

@@ -18,7 +18,7 @@
    ))
 
 
-(defrecord TokenizerModel [binfile, trainfile, language, model, logger]
+(defrecord TokModel [binfile, trainfile, language, model, logger]
   Model
   (load-model [this]
     (log @logger :debug ::load-model {:file binfile})
@@ -41,32 +41,30 @@
     (reset! logger newlogger))
   )
 
-(defrecord SimpleTokenizerModel [model, logger]
+(defrecord SimpleTokModel [logger]
   Model
   (load-model [this]
-    (log @logger :debug ::load-model)
-    (reset! model SimpleTokenizer/INSTANCE))
+    (log @logger :debug ::load-model {:action :no-action}))
   (train-model [this]
-    (log @logger :debug ::train ))
+    (log @logger :debug ::train {:action :no-action}))
   (save-model [this]
-    (log @logger :debug ::save-model))
+    (log @logger :debug ::save-model {:action :no-action}))
   (get-model [this]
-    @model)
+    SimpleTokenizer/INSTANCE)
   (set-logger [this newlogger]
     (reset! logger newlogger))
   )
 
-(defrecord WhitespaceTokenizerModel [model, logger]
+(defrecord WhitespaceTokModel [model, logger]
   Model
   (load-model [this]
-    (log @logger :debug ::load-model)
-    (reset! model WhitespaceTokenizer/INSTANCE))
+    (log @logger :debug ::load-model {:action :no-action}))
   (train-model [this]
-    (log @logger :debug ::train ))
+    (log @logger :debug ::train  {:action :no-action}))
   (save-model [this]
-    (log @logger :debug ::save-model))
+    (log @logger :debug ::save-model {:action :no-action}))
   (get-model [this]
-    @model)
+    WhitespaceTokenizer/INSTANCE)
   (set-logger [this newlogger]
     (reset! logger newlogger))
   )
@@ -79,10 +77,9 @@
 
 (defmethod ig/init-key ::simple [_ spec]
   (let [{:keys [logger]} spec
-        tokenizer (->SimpleTokenizerModel (atom nil) (atom nil))]
+        tokenizer (->SimpleTokModel (atom nil))]
     (log logger :info ::init-simple-tokenizer)
     (.set-logger tokenizer logger)
-    (.load-model tokenizer)
     tokenizer))
 
 

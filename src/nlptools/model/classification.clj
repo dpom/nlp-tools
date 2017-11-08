@@ -3,7 +3,7 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
-   [duct.logger :refer [log]]
+   [duct.logger :refer [log Logger]]
    [nlptools.model.core :refer [Model]]
    [nlptools.command :as cmd])
   (:import
@@ -45,21 +45,28 @@
 (s/def ::binfile string?)
 (s/def ::trainfile string?)
 (s/def ::language string?)
-(s/def ::load? boolean?)
+(s/def ::loadbin? boolean?)
+;; (s/def ::logger #(instance? Logger %))
+(s/def ::logger map?)
+(s/def ::binconfig (s/keys :req-un [::binfile ::logger]
+                           :opt-un [::trainfile ::loadbin? ::language]))
+(s/def ::trainconfig (s/keys :req-un [::language ::trainfile ::loadbin? ::logger]
+                             :opt-un [::binfile]))
 
 (derive :nlptools.model/classification :nlptools/model)
 
 (defmethod ig/pre-init-spec :nlptools.model/classification [_]
-  (s/keys :req-un [::binfile ::trainfile ::language]
-          :opt-un [::load?]))
+ ;; (s/or ::binconfig ::trainconfig))
+  (s/keys :req-un [::logger]
+          :opt-un [::binfile ::trainfile ::loadbin? ::language]))
 
 
 (defmethod ig/init-key :nlptools.model/classification [_ spec]
-  (let [{:keys [language binfile trainfile load? logger] :or {load? true}} spec
+  (let [{:keys [language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
         classif (->ClassificationModel  binfile trainfile language (atom nil) (atom nil))]
-    (log logger :info ::init {:lang language :binfile binfile :load? load?})
+    (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
     (.set-logger classif logger)
-    (if load?
+    (if loadbin?
       (.load-model classif)
       (.train-model classif))
     classif))
@@ -77,7 +84,7 @@
                       {:nlptools.model/classification {:language language
                                                        :binfile out
                                                        :trainfile in
-                                                       :load? false
+                                                       :loadbin? false
                                                        :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         model (:nlptools.model/classification system)]
