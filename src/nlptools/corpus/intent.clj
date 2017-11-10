@@ -11,7 +11,7 @@
 
 (defrecord IntentCorpus [filepath db logger]
   Corpus
-  (build-corpus [this]
+  (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
     (let [resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
       (with-open [w (io/writer filepath)]
@@ -45,7 +45,7 @@
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (.build-corpus corpus)
+    (.build-corpus! corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))

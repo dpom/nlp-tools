@@ -26,7 +26,7 @@
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]
             [lein-codox "0.10.3" :exclusions [org.clojure/clojure]]]
-  :main ^:skip-aot nlptools.core
+  :main nlptools.core
   :repl-options {:init-ns user}
   :deploy-repositories [["clojars" {:creds :gpg}]]
   :profiles {:check {:global-vars {*warn-on-reflection* true}}

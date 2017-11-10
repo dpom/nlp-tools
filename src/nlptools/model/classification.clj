@@ -21,10 +21,10 @@
 
 (defrecord ClassificationModel [binfile, trainfile, language, model, logger]
   Model
-  (load-model [this]
+  (load-model! [this]
     (log @logger :debug ::load-model {:file binfile})
     (reset! model (DoccatModel. (io/as-file binfile))))
-  (train-model [this]
+  (train-model! [this]
     (log @logger :debug ::train {:file trainfile :lang language})
     (reset! model (DocumentCategorizerME/train language
                                               (DocumentSampleStream. (PlainTextByLineStream. (MarkableFileInputStreamFactory. (io/file trainfile))
@@ -33,8 +33,8 @@
                                                 (.put TrainingParameters/ITERATIONS_PARAM "100")
                                                 (.put TrainingParameters/CUTOFF_PARAM     "1"))
                                               (DoccatFactory.))))
-  (save-model [this]
-    (log @logger :debug ::save-model {:file binfile})
+  (save-model! [this]
+    (log @logger :debug ::save-model! {:file binfile})
     (.serialize ^DoccatModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
@@ -67,8 +67,8 @@
     (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
     (.set-logger! classif logger)
     (if loadbin?
-      (.load-model classif)
-      (.train-model classif))
+      (.load-model! classif)
+      (.train-model! classif))
     classif))
 
 (defmethod cmd/help :model.classification [_]
@@ -88,7 +88,7 @@
                                                        :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         model (:nlptools.model/classification system)]
-    (.save-model model)
+    (.save-model! model)
     (printf "the model trained with %s was saved in %s\n" in out)
     (ig/halt! system)
     0))

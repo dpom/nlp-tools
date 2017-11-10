@@ -33,7 +33,7 @@
 
 (defrecord Boundary [filepath db logger]
   Corpus
-  (build-corpus [this]
+  (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
     (.query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
             filter-row

@@ -20,10 +20,10 @@
 
 (defrecord TokModel [binfile, trainfile, language, model, logger]
   Model
-  (load-model [this]
+  (load-model! [this]
     (log @logger :debug ::load-model {:file binfile})
     (reset! model (TokenizerModel. (io/as-file binfile))))
-  (train-model [this]
+  (train-model! [this]
     (log @logger :debug ::train {:file trainfile :lang language})
     (reset! model (TokenizerME/train (TokenSampleStream.
                                       (PlainTextByLineStream.
@@ -32,8 +32,8 @@
                                      (doto (TrainingParameters.)
                                        (.put TrainingParameters/ITERATIONS_PARAM "100")
                                        (.put TrainingParameters/CUTOFF_PARAM     "5")))))
-  (save-model [this]
-    (log @logger :debug ::save-model {:file binfile})
+  (save-model! [this]
+    (log @logger :debug ::save-model! {:file binfile})
     (.serialize ^TokenizerModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
@@ -43,12 +43,12 @@
 
 (defrecord SimpleTokModel [logger]
   Model
-  (load-model [this]
-    (log @logger :debug ::load-model {:action :no-action}))
-  (train-model [this]
+  (load-model! [this]
+    (log @logger :debug ::load-model! {:action :no-action}))
+  (train-model! [this]
     (log @logger :debug ::train {:action :no-action}))
-  (save-model [this]
-    (log @logger :debug ::save-model {:action :no-action}))
+  (save-model! [this]
+    (log @logger :debug ::save-model! {:action :no-action}))
   (get-model [this]
     SimpleTokenizer/INSTANCE)
   (set-logger! [this newlogger]
@@ -57,12 +57,12 @@
 
 (defrecord WhitespaceTokModel [model, logger]
   Model
-  (load-model [this]
-    (log @logger :debug ::load-model {:action :no-action}))
-  (train-model [this]
+  (load-model! [this]
+    (log @logger :debug ::load-model! {:action :no-action}))
+  (train-model! [this]
     (log @logger :debug ::train  {:action :no-action}))
-  (save-model [this]
-    (log @logger :debug ::save-model {:action :no-action}))
+  (save-model! [this]
+    (log @logger :debug ::save-model! {:action :no-action}))
   (get-model [this]
     WhitespaceTokenizer/INSTANCE)
   (set-logger! [this newlogger]
