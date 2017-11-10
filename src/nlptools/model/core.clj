@@ -8,10 +8,6 @@
   "model core key"
   :nlptools/model)
 
-(def cmdkey
-  "the command key for this unit"
-  :corpus.entity)
-
 
 (defprotocol Model
   (load-model! [this] "Load the model")

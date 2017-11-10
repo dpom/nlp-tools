@@ -21,7 +21,10 @@
    ["-t" "--text TEXT" "The text to be parsed"]
    ])
 
-(def commands [:tool.classification :tool.stemmer :tool.stopwords
+(def commands [:tool.classification
+               :tool.entity
+               :tool.stemmer
+               :tool.stopwords
                :model.classification
                :model.entity
                :corpus.intent

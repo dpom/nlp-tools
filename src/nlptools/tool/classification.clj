@@ -1,13 +1,29 @@
 (ns nlptools.tool.classification
   (:require
+   [clojure.spec.alpha :as s]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
-   [nlptools.tool.core :refer [Tool]]
+   [nlptools.tool.core :refer [Tool corekey]]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize Tokenizer)
    (opennlp.tools.doccat DoccatModel
                          DocumentCategorizerME)))
+
+
+(def ukey
+  "this unit key"
+  :nlptools.tool/classification)
+
+(def cmdkey
+  "the command key for this unit"
+  :tool.classification)
+
+(derive ukey corekey)
+
+(defmethod ig/pre-init-spec corekey [_]
+  (s/keys :req-un [:tool/model :tool/tokenizer :tool/logger]))
+
 
 (defn parse-categories [outcomes-string outcomes]
   "Given a string that represents the opennlp outcomes and an array of
@@ -42,7 +58,7 @@
       (log @logger :debug ::apply-tool {:category resp :probabilities (meta resp)})
       (get resp :best-category "necunoscut"))))
 
-(defmethod ig/init-key :nlptools.tool/classification [_ spec]
+(defmethod ig/init-key ukey [_ spec]
   (let [{:keys [model tokenizer logger]} spec]
     (log logger :debug ::init)
     (let [classif (->ClassificationTool model tokenizer (atom nil) (atom nil))]
@@ -52,18 +68,17 @@
 
 
 
-(defmethod cmd/help :tool.classification [_]
+(defmethod cmd/help cmdkey [_]
   "tool.classification - classify a text")
 
-(defmethod cmd/syntax :tool.classification [_]
+(defmethod cmd/syntax cmdkey [_]
   "nlptools tool.classification -t TEXT -i MODEL_FILE")
 
-(defmethod cmd/run :tool.classification [_ options summary]
+(defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
-        k :nlptools.tool/classification
         {:keys [in text]} opts
         config (merge (cmd/make-logger opts)
-                      {k {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
                           :model (ig/ref :nlptools.model/classification)
                           :logger (ig/ref :duct.logger/timbre)}
                        :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
@@ -71,7 +86,7 @@
                                                        :loadbin? true
                                                        :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
-        classifier (get system k)
+        classifier (get system ukey)
         text (get opts :text "")]
     (printf "text: %s,\ncategory: %s\n" text (.apply-tool classifier text))
     (ig/halt! system)

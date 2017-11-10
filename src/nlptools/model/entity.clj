@@ -32,8 +32,8 @@
 
 (defmethod ig/pre-init-spec corekey [_]
   ;; (s/or :model/binconfig :model/trainconfig))
-  (s/keys :req-un [:model/entity :model/logger]
-          :opt-un [:model/binfile :model/trainfile :model/loadbin? :model/language]))
+  (s/keys :req-un [:model/logger]
+          :opt-un [:model/entity :model/binfile :model/trainfile :model/loadbin? :model/language]))
 
 (defrecord EntityModel [entity binfile trainfile language model logger]
   Model
