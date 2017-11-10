@@ -1,4 +1,5 @@
 (ns nlptools.corpus.entity
+  "A corpus builder for opennlp entity extractor"
   (:require
    [clojure.spec.alpha :as s]
    [integrant.core :as ig]
@@ -42,7 +43,7 @@
                                      reval (re-pattern (str "(?i)" value))
                                      ]
                      ;; (log @logger :debug ::write-line {:counter counter :entity entity :text text})
-                                 (.write w (str/replace text reval (str "<START:" entity ">" value "<END>")))
+                                 (.write w (str/replace text reval (str "<START:" entity "> " value " <END>")))
                                  (.newLine w)
                                  (inc counter)))
                              0 resultset)]
@@ -58,7 +59,7 @@
   "corpus.entity - create a corpus file for an entity type model.")
 
 (defmethod cmd/syntax cmdkey [_]
-  "nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE")
+  "nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE -t entity")
 
 (defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)

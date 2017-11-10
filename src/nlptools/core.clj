@@ -23,6 +23,7 @@
 
 (def commands [:tool.classification :tool.stemmer :tool.stopwords
                :model.classification
+               :model.entity
                :corpus.intent
                :corpus.entity])
 

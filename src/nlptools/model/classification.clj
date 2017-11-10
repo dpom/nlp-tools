@@ -4,7 +4,7 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
    [duct.logger :refer [log Logger]]
-   [nlptools.model.core :refer [Model]]
+   [nlptools.model.core :refer [Model corekey]]
    [nlptools.command :as cmd])
   (:import
    [opennlp.tools.doccat
@@ -17,6 +17,16 @@
     TrainingParameters
     MarkableFileInputStreamFactory]
    ))
+
+(def ukey
+  "this unit key"
+  :nlptools.model/classification)
+
+(def cmdkey
+  "the command key for this unit"
+  :model.classification)
+
+(derive ukey corekey)
 
 
 (defrecord ClassificationModel [binfile, trainfile, language, model, logger]
@@ -42,26 +52,8 @@
     (reset! logger newlogger))
   )
 
-(s/def ::binfile string?)
-(s/def ::trainfile string?)
-(s/def ::language string?)
-(s/def ::loadbin? boolean?)
-;; (s/def ::logger #(instance? Logger %))
-(s/def ::logger map?)
-(s/def ::binconfig (s/keys :req-un [::binfile ::logger]
-                           :opt-un [::trainfile ::loadbin? ::language]))
-(s/def ::trainconfig (s/keys :req-un [::language ::trainfile ::loadbin? ::logger]
-                             :opt-un [::binfile]))
 
-(derive :nlptools.model/classification :nlptools/model)
-
-(defmethod ig/pre-init-spec :nlptools.model/classification [_]
- ;; (s/or ::binconfig ::trainconfig))
-  (s/keys :req-un [::logger]
-          :opt-un [::binfile ::trainfile ::loadbin? ::language]))
-
-
-(defmethod ig/init-key :nlptools.model/classification [_ spec]
+(defmethod ig/init-key ukey [_ spec]
   (let [{:keys [language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
         classif (->ClassificationModel  binfile trainfile language (atom nil) (atom nil))]
     (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
@@ -71,23 +63,23 @@
       (.train-model! classif))
     classif))
 
-(defmethod cmd/help :model.classification [_]
-  "model.classification - build and save a classification model")
+(defmethod cmd/help cmdkey [_]
+  (str (name cmdkey) " - build and save a classification model"))
 
-(defmethod cmd/syntax :model.classification [_]
-  "nlptools model.classification -i CORPUS-FILE -o MODEL-FILE -l LANGUAGE")
+(defmethod cmd/syntax cmdkey [_]
+  (str "nlptools " (name cmdkey) " -i CORPUS-FILE -o MODEL-FILE -l LANGUAGE"))
 
-(defmethod cmd/run :model.classification [_ options summary]
+(defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
         {:keys [in out language]} opts
         config (merge (cmd/make-logger opts)
-                      {:nlptools.model/classification {:language language
-                                                       :binfile out
-                                                       :trainfile in
-                                                       :loadbin? false
-                                                       :logger (ig/ref :duct.logger/timbre)}})
+                      {ukey {:language language
+                             :binfile out
+                             :trainfile in
+                             :loadbin? false
+                             :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
-        model (:nlptools.model/classification system)]
+        model (ukey system)]
     (.save-model! model)
     (printf "the model trained with %s was saved in %s\n" in out)
     (ig/halt! system)
