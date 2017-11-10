@@ -341,3 +341,22 @@ resp
 (def s2 (ig/init config [:nlptools/stemmer])) 
 
 (instance? duct.logger.Logger (:duct.logger/timbre s2))  
+
+
+(def db (:nlptools.module/mongo system)) 
+
+(def entity "category") 
+
+(def entkey (keyword (str "entities." entity))) 
+(def resultset (.query db "nlp" {:is_valid true entkey {"$exists" true}} ["text" "entities"])) 
+
+(count resultset) 
+
+(def item (first resultset))
+
+(require '[clojure.string :as str]) 
+
+(let [{:keys [text entities]} item 
+      value  (get entities (keyword entity))]
+  (str/replace text value (str "<START:" entity ">" value "<END>"))
+  ) 

@@ -23,7 +23,8 @@
 
 (def commands [:tool.classification :tool.stemmer :tool.stopwords
                :model.classification
-               :corpus.intent])
+               :corpus.intent
+               :corpus.entity])
 
 (defn print-msg
   "Print informal messages on the console.
