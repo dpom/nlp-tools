@@ -15,10 +15,6 @@
   (set-logger! [this newlogger] "Set a new logger"))
 
 
-(s/def :tool/language string?)
-(s/def :tool/model map?)
-(s/def :tool/tokenizer map?)
-(s/def :tool/logger map?)
 
 
 

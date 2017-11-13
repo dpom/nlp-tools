@@ -4,6 +4,7 @@
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.tool.core :refer [Tool corekey]]
+   [nlptools.spec :refer :all :as spec]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize Tokenizer)
@@ -22,7 +23,7 @@
 (derive ukey corekey)
 
 (defmethod ig/pre-init-spec corekey [_]
-  (s/keys :req-un [:tool/model :tool/tokenizer :tool/logger]))
+  (spec/known-keys :req-un [:nlptools/model :nlptools/tokenizer :nlptools/logger]))
 
 
 (defn parse-categories [outcomes-string outcomes]
@@ -69,10 +70,10 @@
 
 
 (defmethod cmd/help cmdkey [_]
-  "tool.classification - classify a text")
+  (str (name cmdkey) " - classify a text"))
 
 (defmethod cmd/syntax cmdkey [_]
-  "nlptools tool.classification -t TEXT -i MODEL_FILE")
+  (str "nlptools" (name cmdkey) " -t TEXT -i MODEL_FILE"))
 
 (defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
