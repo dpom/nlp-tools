@@ -4,7 +4,7 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
    [duct.logger :refer [log Logger]]
-   [nlptools.model.core :refer [Model corekey]]
+   [nlptools.model.core :as model]
    [nlptools.command :as cmd])
   (:import
    [opennlp.tools.doccat
@@ -26,11 +26,11 @@
   "the command key for this unit"
   :model.classification)
 
-(derive ukey corekey)
+(derive ukey model/corekey)
 
 
 (defrecord ClassificationModel [binfile, trainfile, language, model, logger]
-  Model
+  model/Model
   (load-model! [this]
     (log @logger :debug ::load-model {:file binfile})
     (reset! model (DoccatModel. (io/as-file binfile))))
@@ -57,10 +57,10 @@
   (let [{:keys [language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
         classif (->ClassificationModel  binfile trainfile language (atom nil) (atom nil))]
     (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
-    (.set-logger! classif logger)
+    (model/set-logger! classif logger)
     (if loadbin?
-      (.load-model! classif)
-      (.train-model! classif))
+      (model/load-model! classif)
+      (model/train-model! classif))
     classif))
 
 (defmethod cmd/help cmdkey [_]
@@ -80,7 +80,7 @@
                              :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         model (ukey system)]
-    (.save-model! model)
+    (model/save-model! model)
     (printf "the model trained with %s was saved in %s\n" in out)
     (ig/halt! system)
     0))

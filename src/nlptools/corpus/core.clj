@@ -3,6 +3,11 @@
   (:require
    [clojure.spec.alpha :as s]))
 
+
+(def corekey
+  "corpus core key"
+  :nlptools/corpus)
+
 (defprotocol Corpus
   (build-corpus! [this] "Build and save corpus."))
 

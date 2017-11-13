@@ -3,7 +3,8 @@
    [clojure.spec.alpha :as s]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
-   [nlptools.tool.core :refer [Tool corekey]]
+   [nlptools.tool.core :as tool]
+   [nlptools.model.core :as model]
    [nlptools.span :as nspan]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
@@ -23,17 +24,13 @@
   "the command key for this unit"
   :tool.entity)
 
-(derive ukey corekey)
+(derive ukey tool/corekey)
 
-(defmethod ig/pre-init-spec corekey [_]
+(defmethod ig/pre-init-spec ukey [_]
   (spec/known-keys :req-un [:nlptools/model
                             :nlptools/tokenizer 
                             :nlptools/logger]))
 
-
-(defn- to-native-span
-  [^Span span]
-  (nspan/make-span (.getStart span) (.getEnd span) (.getType span)))
 
 
 (defn make-entity-finder
@@ -55,10 +52,10 @@
             matches vals))))
 
 (defrecord EntityTool [model tokenizer finder logger]
-  Tool
+  tool/Tool
   (build-tool! [this]
     (log @logger :debug ::build-tool)
-    (reset! finder (make-entity-finder (.get-model model) (.get-model tokenizer) logger)))
+    (reset! finder (make-entity-finder (model/get-model model) (model/get-model tokenizer) logger)))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
@@ -70,8 +67,8 @@
   (let [{:keys [model tokenizer logger]} spec]
     (log logger :debug ::init)
     (let [classif (->EntityTool model tokenizer (atom nil) (atom nil))]
-      (.set-logger! classif logger)
-      (.build-tool! classif)
+      (tool/set-logger! classif logger)
+      (tool/build-tool! classif)
       classif)))
 
 
@@ -96,6 +93,6 @@
         system (ig/init (cmd/prep-igconfig config))
         finder (get system ukey)
         text (get opts :text "")]
-    (printf "text: %s,\nfinds: %s\n" text (.apply-tool finder text))
+    (printf "text: %s,\nfinds: %s\n" text (tool/apply-tool finder text))
     (ig/halt! system)
     0))

@@ -5,9 +5,23 @@
   [clojure.string :as str]
   [duct.logger :refer [log]]
   [clojure.test :refer :all]
-  [nlptools.corpus.core :refer [Corpus]])
+  [nlptools.module.db :as db]
+  [nlptools.corpus.core :as corpus])
   (:import
    [org.jsoup Jsoup]))
+
+
+(def ukey
+  "this unit key"
+  :nlptools.corpus/claim)
+
+(def cmdkey
+  "the command key for this unit"
+  :corpus.claim)
+
+(derive ukey corpus/corekey)
+
+
 
 (defn strip-html-tags
   "Function strips HTML tags from string."
@@ -20,29 +34,29 @@
       strip-html-tags))
 
 (defn write-corpus! [filename, resultset]
-  (with-open [w (clojure.java.io/writer filename)]
+  (with-open [ w (clojure.java.io/writer filename)]
     (reduce  (fn [total row]
                (if (str/blank? row)
                  total
                  (do
-                   (.write w row)
-                   (.newLine w)
+                   (.write ^java.io.Writer w row)
+                   (.newLine ^java.io.Writer w)
                    (inc total))))
              0 resultset)))
 
 
-(defrecord Boundary [filepath db logger]
-  Corpus
+(defrecord ClaimCorpus [filepath db logger]
+  corpus/Corpus
   (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
-    (.query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
+    (db/query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
             filter-row
             (partial write-corpus! filepath))
     this))
  
-(defmethod ig/init-key :nlptools.corpus/claim [_ spec]
+(defmethod ig/init-key ukey [_ spec]
   (let [{:keys [db filepath logger]} spec]
-    (->Boundary filepath db logger)))
+    (->ClaimCorpus filepath db logger)))
 
 
 

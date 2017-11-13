@@ -3,8 +3,8 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
-   [nlptools.model.core :refer [Model corekey]]
    [nlptools.spec :as spec]
+   [nlptools.model.core :as model]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize TokenizerME
@@ -20,7 +20,7 @@
 
 
 (defrecord TokModel [binfile, trainfile, language, model, logger]
-  Model
+  model/Model
   (load-model! [this]
     (log @logger :debug ::load-model {:file binfile})
     (reset! model (TokenizerModel. (io/as-file binfile))))
@@ -43,7 +43,7 @@
   )
 
 (defrecord SimpleTokModel [logger]
-  Model
+  model/Model
   (load-model! [this]
     (log @logger :debug ::load-model! {:action :no-action}))
   (train-model! [this]
@@ -57,7 +57,7 @@
   )
 
 (defrecord WhitespaceTokModel [logger]
-  Model
+  model/Model
   (load-model! [this]
     (log @logger :debug ::load-model! {:action :no-action}))
   (train-model! [this]
@@ -75,7 +75,7 @@
   (let [{:keys [logger]} spec
         tokenizer (->SimpleTokModel (atom nil))]
     (log logger :info ::init)
-    (.set-logger! tokenizer logger)
+    (model/set-logger! tokenizer logger)
     tokenizer))
 
 

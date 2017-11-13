@@ -7,9 +7,9 @@
    [clojure.string :as str]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
+   [nlptools.module.mongo :as db]
    [nlptools.spec :as spec]
-   [nlptools.corpus.core :refer [Corpus]]
-   ))
+   [nlptools.corpus.core :as corpus]))
 
 
 (def ukey
@@ -20,7 +20,7 @@
   "the command key for this unit"
   :corpus.entity)
 
-(derive ukey :nlptools/corpus)
+(derive ukey corpus/corekey)
 
 (s/def :corpus/entity string?)
 
@@ -32,12 +32,12 @@
 
 
 (defrecord EntityCorpus [filepath db entity logger]
-  Corpus
+  corpus/Corpus
   (build-corpus! [this]
     (log logger :info ::build-corpus! {:file filepath :entity entity})
     (let [entkey (keyword (str "entities." entity))
-          resultset (.query db "nlp"  {:is_valid true entkey {"$exists" true}}["text" "entities"])]
-      (with-open [w (io/writer filepath)]
+          resultset (db/query db "nlp"  {:is_valid true entkey {"$exists" true}}["text" "entities"])]
+      (with-open [^java.io.Writer w (io/writer filepath)]
         (let [total (reduce  (fn [counter item]
                                (let [{:keys [text entities]} item 
                                      value  (get entities (keyword entity))
@@ -57,7 +57,7 @@
     (->EntityCorpus filepath db entity logger)))
 
 (defmethod cmd/help cmdkey [_]
-  "corpus.entity - create a corpus file for an entity type model.")
+  (str cmdkey " - create a corpus file for an entity type model."))
 
 (defmethod cmd/syntax cmdkey [_]
   "nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE -t entity")
@@ -73,7 +73,7 @@
                        :nlptools.module/mongo (assoc mongodb :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (get system ukey)]
-    (.build-corpus! corpus)
+    (corpus/build-corpus! corpus)
     (printf "build %s entity corpus in: %s\n" (:entity corpus) (:filepath corpus) )
     (ig/halt! system)
     0))

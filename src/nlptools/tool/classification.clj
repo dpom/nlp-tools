@@ -3,7 +3,8 @@
    [clojure.spec.alpha :as s]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
-   [nlptools.tool.core :refer [Tool corekey]]
+   [nlptools.tool.core :as tool]
+   [nlptools.model.core :as model]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
@@ -20,17 +21,18 @@
   "the command key for this unit"
   :tool.classification)
 
-(derive ukey corekey)
+(derive ukey tool/corekey)
 
-(defmethod ig/pre-init-spec corekey [_]
+(defmethod ig/pre-init-spec ukey [_]
   (spec/known-keys :req-un [:nlptools/model
                             :nlptools/tokenizer
                             :nlptools/logger]))
 
 
-(defn parse-categories [outcomes-string outcomes]
+(defn parse-categories 
   "Given a string that represents the opennlp outcomes and an array of
   probability outcomes, zip them into a map of category-probability pairs"
+  [outcomes-string outcomes]
   (zipmap
    (map first (map rest (re-seq #"(\w+)\[.*?\]" outcomes-string)))
    outcomes))
@@ -50,10 +52,10 @@
                          outcomes)}))))
 
 (defrecord ClassificationTool [model tokenizer classifier logger]
-  Tool
+  tool/Tool
   (build-tool! [this]
     (log @logger :debug ::build-tool)
-    (reset! classifier (make-document-classifier (.get-model model) (.get-model tokenizer))))
+    (reset! classifier (make-document-classifier (model/get-model model) (model/get-model tokenizer))))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
@@ -65,8 +67,8 @@
   (let [{:keys [model tokenizer logger]} spec]
     (log logger :debug ::init)
     (let [classif (->ClassificationTool model tokenizer (atom nil) (atom nil))]
-      (.set-logger! classif logger)
-      (.build-tool! classif)
+      (tool/set-logger! classif logger)
+      (tool/build-tool! classif)
       classif)))
 
 
@@ -91,6 +93,6 @@
         system (ig/init (cmd/prep-igconfig config))
         classifier (get system ukey)
         text (get opts :text "")]
-    (printf "text: %s,\ncategory: %s\n" text (.apply-tool classifier text))
+    (printf "text: %s,\ncategory: %s\n" text (tool/apply-tool classifier text))
     (ig/halt! system)
     0))

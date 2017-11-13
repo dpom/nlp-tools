@@ -5,9 +5,9 @@
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
+   [nlptools.module.mongo :as db]
    [nlptools.spec :as spec]
-   [nlptools.corpus.core :refer [Corpus]]
-   ))
+   [nlptools.corpus.core :as corpus]))
 
 (def ukey
   "this unit key"
@@ -17,16 +17,15 @@
   "the command key for this unit"
   :corpus.intent)
 
-(derive ukey :nlptools/corpus)
-
+(derive ukey corpus/corekey)
 
 
 (defrecord IntentCorpus [filepath db logger]
-  Corpus
+  corpus/Corpus
   (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
-    (let [resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
-      (with-open [w (io/writer filepath)]
+    (let [resultset (db/query db "nlp" {:is_valid true} ["text" "entities"])]
+      (with-open [^java.io.Writer w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
                    (let [intent (get entities :intent "necunoscut")]
                      ;; (log @logger :debug ::write-line {:counter counter :intent intent :text text})
@@ -57,7 +56,7 @@
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (.build-corpus! corpus)
+    (corpus/build-corpus! corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))
