@@ -5,6 +5,7 @@
    [duct.logger :refer [log]]
    [nlptools.tool.core :refer [Tool corekey]]
    [nlptools.span :as nspan]
+   [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize Tokenizer)
@@ -25,41 +26,45 @@
 (derive ukey corekey)
 
 (defmethod ig/pre-init-spec corekey [_]
-  (s/keys :req-un [:tool/model :tool/tokenizer :tool/logger]))
+  (spec/known-keys :req-un [:nlptools/model
+                            :nlptools/tokenizer 
+                            :nlptools/logger]))
 
 
 (defn- to-native-span
-  "Take an OpenNLP span object and return a pair [i j] where i and j are the
-start and end positions of the span."
   [^Span span]
   (nspan/make-span (.getStart span) (.getEnd span) (.getType span)))
 
 
 (defn make-entity-finder
-  [^TokenNameFinderModel model ^Tokenizer tokenizer]
+  [^TokenNameFinderModel model ^Tokenizer tokenizer logger]
   (fn entity-finder
     [text]
     {:pre [(string? text)]}
     (let [finder (NameFinderME. model)
           tokens (.tokenize tokenizer  ^String text)
           matches (.find finder tokens)
-          probs (seq (.probs finder))]
-      (with-meta
-        (distinct (Span/spansToStrings #^"[Lopennlp.tools.util.Span;" matches #^"[Ljava.lang.String;" tokens))
-        {:probabilities probs
-         :spans (map to-native-span matches)}))))
+          vals (Span/spansToStrings #^"[Lopennlp.tools.util.Span;" matches #^"[Ljava.lang.String;" tokens)]
+      (log @logger :debug ::entity-finder {:found  (count matches)})
+      (mapv (fn [^Span m v]
+              {:entity (.getType m)
+               :value {:value v}
+               :start (.getStart m)
+               :end (.getEnd m)
+               :confidence (.getProb m)})
+            matches vals))))
 
 (defrecord EntityTool [model tokenizer finder logger]
   Tool
   (build-tool! [this]
     (log @logger :debug ::build-tool)
-    (reset! finder (make-entity-finder (.get-model model) (.get-model tokenizer))))
+    (reset! finder (make-entity-finder (.get-model model) (.get-model tokenizer) logger)))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
-    (let [resp (@finder text)]
-      (log @logger :debug ::apply-tool {:finds resp :probabilities (meta resp)})
-      resp)))
+    (let [entities (@finder text)]
+      (log @logger :debug ::apply-tool {:entities entities})
+      entities)))  
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [model tokenizer logger]} spec]

@@ -7,5 +7,4 @@
   (build-corpus! [this] "Build and save corpus."))
 
 (s/def :corpus/filepath string?)
-(s/def :corpus/logger map?)
 (s/def :corpus/db map?)

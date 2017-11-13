@@ -4,7 +4,7 @@
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.tool.core :refer [Tool corekey]]
-   [nlptools.spec :refer :all :as spec]
+   [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize Tokenizer)
@@ -23,7 +23,9 @@
 (derive ukey corekey)
 
 (defmethod ig/pre-init-spec corekey [_]
-  (spec/known-keys :req-un [:nlptools/model :nlptools/tokenizer :nlptools/logger]))
+  (spec/known-keys :req-un [:nlptools/model
+                            :nlptools/tokenizer
+                            :nlptools/logger]))
 
 
 (defn parse-categories [outcomes-string outcomes]

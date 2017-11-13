@@ -3,7 +3,8 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
-   [nlptools.model.core :refer [Model]]
+   [nlptools.model.core :refer [Model corekey]]
+   [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.tokenize TokenizerME
@@ -46,7 +47,7 @@
   (load-model! [this]
     (log @logger :debug ::load-model! {:action :no-action}))
   (train-model! [this]
-    (log @logger :debug ::train {:action :no-action}))
+    (log @logger :debug ::train-model! {:action :no-action}))
   (save-model! [this]
     (log @logger :debug ::save-model! {:action :no-action}))
   (get-model [this]
@@ -55,12 +56,12 @@
     (reset! logger newlogger))
   )
 
-(defrecord WhitespaceTokModel [model, logger]
+(defrecord WhitespaceTokModel [logger]
   Model
   (load-model! [this]
     (log @logger :debug ::load-model! {:action :no-action}))
   (train-model! [this]
-    (log @logger :debug ::train  {:action :no-action}))
+    (log @logger :debug ::train-model!  {:action :no-action}))
   (save-model! [this]
     (log @logger :debug ::save-model! {:action :no-action}))
   (get-model [this]
@@ -70,15 +71,10 @@
   )
 
 
-
-(derive :nlptools.model/tokenizer :nlptools/model)
-(derive :nlptools.model.tokenizer/simple :nlptools.model/tokenizer)
-
-
 (defmethod ig/init-key ::simple [_ spec]
   (let [{:keys [logger]} spec
         tokenizer (->SimpleTokModel (atom nil))]
-    (log logger :info ::init-simple-tokenizer)
+    (log logger :info ::init)
     (.set-logger! tokenizer logger)
     tokenizer))
 

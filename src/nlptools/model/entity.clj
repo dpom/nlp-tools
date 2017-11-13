@@ -5,6 +5,7 @@
    [clojure.spec.alpha :as s]
    [duct.logger :refer [log Logger]]
    [nlptools.model.core :refer [Model corekey]]
+   [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
    (opennlp.tools.namefind NameSampleDataStream
@@ -12,7 +13,7 @@
                            TokenNameFinderModel
                            TokenNameFinderFactory
                            BioCodec)
-   (opennlp.tools.util PlainTextByLineStream 
+   (opennlp.tools.util PlainTextByLineStream
                        TrainingParameters
                        MarkableFileInputStreamFactory)
    (java.nio.charset StandardCharsets)
@@ -31,9 +32,12 @@
 (s/def :model/entity string?)
 
 (defmethod ig/pre-init-spec corekey [_]
-  ;; (s/or :model/binconfig :model/trainconfig))
-  (s/keys :req-un [:model/logger]
-          :opt-un [:model/entity :model/binfile :model/trainfile :model/loadbin? :model/language]))
+  (spec/known-keys :req-un [:nlptools/logger]
+                   :opt-un [:model/entity
+                            :model/binfile
+                            :model/trainfile
+                            :model/loadbin?
+                            :nlptools/language]))
 
 (defrecord EntityModel [entity binfile trainfile language model logger]
   Model
@@ -46,7 +50,7 @@
                                       entity
                                       (NameSampleDataStream. (PlainTextByLineStream. (MarkableFileInputStreamFactory. (io/file trainfile))
                                                                                      StandardCharsets/UTF_8))
-                                      (TrainingParameters/defaultParams) 
+                                      (TrainingParameters/defaultParams)
                                       ;; (doto (TrainingParameters.)
                                       ;;   (.put TrainingParameters/ALGORITHM_PARAM "MAXENT")
                                       ;;   (.put TrainingParameters/ITERATIONS_PARAM "100")

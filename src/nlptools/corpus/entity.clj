@@ -7,6 +7,7 @@
    [clojure.string :as str]
    [duct.logger :refer [log]]
    [nlptools.command :as cmd]
+   [nlptools.spec :as spec]
    [nlptools.corpus.core :refer [Corpus]]
    ))
 
@@ -24,10 +25,10 @@
 (s/def :corpus/entity string?)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (s/keys :req-un [:corpus/entity
-                   :corpus/filepath
-                   :corpus/db
-                   :corpus/logger]))
+  (spec/known-keys :req-un [:corpus/entity
+                            :corpus/filepath
+                            :corpus/db
+                            :nlptools/logger]))
 
 
 (defrecord EntityCorpus [filepath db entity logger]

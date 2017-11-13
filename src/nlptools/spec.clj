@@ -13,6 +13,7 @@
 
 
 (s/def :nlptools/logger map?)
+;; (s/def :model/logger #(instance? Logger %))
 (s/def :nlptools/language string?)
 (s/def :nlptools/model map?)
 (s/def :nlptools/tokenizer map?)

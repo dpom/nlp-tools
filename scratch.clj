@@ -360,3 +360,78 @@ resp
       value  (get entities (keyword entity))]
   (str/replace text value (str "<START:" entity ">" value "<END>"))
   ) 
+
+(def tool (:nlptools.tool/entity system)) 
+
+(def res (.apply-tool tool "vreau sa cumpar un televizor")) 
+(.apply-tool tool "vreau un telefon si un frigider") 
+
+(def model (.get-model (:model tool))) 
+(def tokenizer (.get-model (:tokenizer tool))) 
+
+(import
+ (opennlp.tools.tokenize Tokenizer)
+ (opennlp.tools.util Span)
+ (opennlp.tools.namefind NameFinderME
+                         TokenNameFinderModel)
+ ) 
+
+(def finder (NameFinderME. model)) 
+
+(def text "Vreau un televizor.") 
+
+(def tokens (.tokenize tokenizer  ^String text))
+
+(defn print-array [arr]
+  (doseq [a arr]
+     (fipp a)))  
+
+(print-array tokens) 
+
+(def matches (.find finder tokens)) 
+
+
+(def res (distinct (Span/spansToStrings matches tokens))) 
+
+(require '[nlptools.span :as nspan]) 
+
+(defn to-native-span
+  "Take an OpenNLP span object and return a pair [i j] where i and j are the
+start and end positions of the span."
+  [^Span span]
+  (nspan/make-span (.getStart span) (.getEnd span) (.getType span))) 
+
+(map to-native-span matches) 
+
+
+  (def text "Vreau un televizor si un laptop.") 
+
+(def tokens (.tokenize tokenizer  ^String text)) 
+
+
+(def matches (.find finder tokens)) 
+
+(def a (.apply-tool tool "Vreau un laptop"))  
+
+(meta a) 
+
+(count matches)
+
+(def m (first matches))  
+
+(str m) 
+
+(.getProb m) 
+
+(def s (Span/spansToStrings #^"[Lopennlp.tools.util.Span;" matches #^"[Ljava.lang.String;" tokens)) 
+
+(first s) 
+
+(require '[fipp.engine :refer (pprint-document)])
+
+(defn ppd [doc]
+  (pprint-document doc {:width 10}))
+
+(ppd [:span "One" :line "Two" :line "Three"])
+
+(ppd [:group "(do" [:nest 2 :line "(step-1)" :line "(step-2)"] ")"])
