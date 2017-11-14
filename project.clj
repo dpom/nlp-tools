@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.5-dev06"
+(defproject dpom/nlptools "0.5.0"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
@@ -45,5 +45,8 @@
                               [:email "dan.pomohaci@gmail.com"]
                               [:timezone "+3"]]]
   :codox {:doc-files []
+          :exclude-vars nil
+          :project {:name "nlptools"}
+          :source-paths ["src"]
           :output-path "docs/api"}
 )
