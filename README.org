@@ -25,6 +25,42 @@ To see what commands are available run:
 lein run -- -h
 #+END_SRC
 
+The application display the folowing help:
+#+BEGIN_SRC sh
+This is the nlp-tools program.
+
+Usage: nlptools [options] action
+
+Options:
+  -c, --config FILE        .nlptools.edn  Configuration file
+  -h, --help
+  -i, --in FILE                           Input file name
+  -l, --language LANGUAGE  ro             Language
+  -o, --out FILE                          Output file name
+  -q, --quiet
+  -t, --text TEXT                         The text to be parsed
+
+Actions:
+tool.classification - classify a text
+tool.entity - extract entity from a text
+tool.stemmer - reduce inflected (or sometimes derived) words to their word stem 
+tool.stopwords - remove stopwords from the input
+model.classification - build and save a classification model
+model.entity - build and save an entity model
+corpus.intent - create a corpus file for an intent type classification model.
+corpus.entity - create a corpus file for an entity type model.
+
+Syntax examples:
+nlptoolstool.classification -t TEXT -i MODEL_FILE
+nlptools tool.entity -t TEXT -i MODEL_FILE
+nlptools tool.stemmer -t TEXT
+nlptools tool.stopwords -t TEXT
+nlptools model.classification -i CORPUS-FILE -o MODEL-FILE -l LANGUAGE
+nlptools model.entity -i CORPUS-FILE -o MODEL-FILE -l LANGUAGE -t entity
+nlptools corpus.intent -c CONFIG-FILE -o CORPUS-FILE
+nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE -t entity
+#+END_SRC
+
 *** Lib
 
 For lein add in you project.clj:
