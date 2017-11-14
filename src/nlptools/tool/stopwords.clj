@@ -2,6 +2,8 @@
   (:require
    [clojure.string :as str]
    [clojure.java.io :as io]
+   [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.tool.core :as tool]
@@ -57,6 +59,21 @@
       (tool/set-logger! tool logger)
       (tool/build-tool! tool)
       tool)))
+
+
+(s/def ::result (s/coll-of string?))
+
+(deftest apply-tool-test
+  (let [config (merge (cmd/make-test-logger :error)
+                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                             :logger (ig/ref :duct.logger/timbre)}
+                       :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}})
+        system (ig/init (cmd/prep-igconfig config))
+        remover (get system ukey)
+        res (tool/apply-tool remover "Acesta este un televizor Samsung")]
+    (is (s/valid? ::result res))
+    (is (= ["televizor" "samsung"] res))))
+
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - remove stopwords from the input"))

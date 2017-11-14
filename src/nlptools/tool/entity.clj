@@ -1,10 +1,11 @@
 (ns nlptools.tool.entity
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [nlptools.tool.core :as tool]
-   [nlptools.model.core :as model]
+   [nlptools.model.core :as modl]
    [nlptools.span :as nspan]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
@@ -36,10 +37,9 @@
 (defn make-entity-finder
   [^TokenNameFinderModel model ^Tokenizer tokenizer logger]
   (fn entity-finder
-    [text]
-    {:pre [(string? text)]}
+    [^String text]
     (let [finder (NameFinderME. model)
-          tokens (.tokenize tokenizer  ^String text)
+          tokens (.tokenize tokenizer text)
           matches (.find finder tokens)
           vals (Span/spansToStrings #^"[Lopennlp.tools.util.Span;" matches #^"[Ljava.lang.String;" tokens)]
       (log @logger :debug ::entity-finder {:found  (count matches)})
@@ -54,8 +54,8 @@
 (defrecord EntityTool [model tokenizer finder logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool)
-    (reset! finder (make-entity-finder (model/get-model model) (model/get-model tokenizer) logger)))
+    (log @logger :debug ::build-tool!)
+    (reset! finder (make-entity-finder (modl/get-model model) (modl/get-model tokenizer) logger)))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
@@ -72,6 +72,28 @@
       classif)))
 
 
+(s/def ::entity string?)
+(s/def ::start int?)
+(s/def ::end int?)
+(s/def ::value map?)
+(s/def ::confidence double?)
+(s/def ::entity-item (s/keys :req-un [::entity ::value ::confidence ::start ::end]))
+(s/def ::result (s/coll-of ::entity-item))
+
+(deftest apply-tool-test
+  (let [config (merge (cmd/make-test-logger :error)
+                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                             :model (ig/ref :nlptools.model/entity)
+                             :logger (ig/ref :duct.logger/timbre)}
+                       :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
+                       :nlptools.model/entity {:binfile "test/category.bin"
+                                               :loadbin? true
+                                               :logger (ig/ref :duct.logger/timbre)}})
+        system (ig/init (cmd/prep-igconfig config))
+        classifier (get system ukey)
+        res (tool/apply-tool classifier "Vreau un televizor")]
+    (is (s/valid? ::result res))
+    (is (= "televizor" (get-in (first res) [:value :value])))))
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - extract entity from a text"))

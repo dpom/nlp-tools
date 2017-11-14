@@ -1,5 +1,7 @@
 (ns nlptools.tool.stemmer
   (:require
+   [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
    [stemmer.snowball :as snowball]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
@@ -39,6 +41,19 @@
       (tool/set-logger! stemmer logger)
       (tool/build-tool! stemmer)
       stemmer)))
+
+(s/def ::result string?)
+
+(deftest apply-tool-test
+  (let [config (merge (cmd/make-test-logger :error)
+                      {ukey {:language "ro" 
+                             :logger (ig/ref :duct.logger/timbre)}})
+        system (ig/init (cmd/prep-igconfig config))
+        stemmer (get system ukey)
+        res (tool/apply-tool stemmer "copiilor")]
+    (is (s/valid? ::result res))
+    (is (= "cop" res))))
+
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - reduce inflected (or sometimes derived) words to their word stem "))

@@ -5,7 +5,7 @@
    [duct.logger :refer [log]]
    [clojure.test :refer :all]
    [nlptools.tool.core :as tool]
-   [nlptools.model.core :as model]
+   [nlptools.model.core :as modl]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
@@ -41,10 +41,9 @@
 (defn make-document-classifier
   [^DoccatModel model ^Tokenizer tokenizer]
   (fn document-classifier
-    [text]
-    {:pre [(string? text)]}
+    [^String text]
     (let [classifier (DocumentCategorizerME. model)
-          tokens (.tokenize tokenizer  ^String text)
+          tokens (.tokenize tokenizer  text)
           outcomes (.categorize classifier tokens)
           best-category (.getBestCategory classifier outcomes)
           confidences (.scoreMap classifier tokens)]
@@ -55,8 +54,8 @@
 (defrecord ClassificationTool [model tokenizer classifier logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool)
-    (reset! classifier (make-document-classifier (model/get-model model) (model/get-model tokenizer))))
+    (log @logger :debug ::build-tool! {:model model :tokenizer tokenizer})
+    (reset! classifier (make-document-classifier (modl/get-model model) (modl/get-model tokenizer))))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
@@ -80,7 +79,7 @@
 (s/def ::meta (s/keys :req-un [::confidences]))
 
 ;; (deftest apply-tool-test
-;;   (let [config (merge (cmd/make-test-logger)
+;;   (let [config (merge (cmd/make-test-logger :debug)
 ;;                       {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
 ;;                              :model (ig/ref :nlptools.model/classification)
 ;;                              :logger (ig/ref :duct.logger/timbre)}

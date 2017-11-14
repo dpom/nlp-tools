@@ -34,12 +34,12 @@
    }
   )
 
-(defn make-test-logger []
+(defn make-test-logger [level]
   {
-   :duct.logger/timbre {:level :error
+   :duct.logger/timbre {:level level
                         :set-root-config? true
                         :appenders {:duct.logger.timbre/brief (ig/ref :duct.logger.timbre/brief)}},
-   :duct.logger.timbre/brief {:min-level :error}
+   :duct.logger.timbre/brief {:min-level level}
    }
   )
 
