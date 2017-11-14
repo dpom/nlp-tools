@@ -34,6 +34,15 @@
    }
   )
 
+(defn make-test-logger []
+  {
+   :duct.logger/timbre {:level :error
+                        :set-root-config? true
+                        :appenders {:duct.logger.timbre/brief (ig/ref :duct.logger.timbre/brief)}},
+   :duct.logger.timbre/brief {:min-level :error}
+   }
+  )
+
 (defmulti help
   "Returns the command description."
   {:arglists '([key])}

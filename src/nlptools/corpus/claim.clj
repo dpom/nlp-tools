@@ -34,13 +34,13 @@
       strip-html-tags))
 
 (defn write-corpus! [filename, resultset]
-  (with-open [ w (clojure.java.io/writer filename)]
-    (reduce  (fn [total row]
+  (with-open [^java.io.BufferedWriter w (clojure.java.io/writer filename)]
+    (reduce  (fn [total ^String row]
                (if (str/blank? row)
                  total
                  (do
-                   (.write ^java.io.Writer w row)
-                   (.newLine ^java.io.Writer w)
+                   (.write w row)
+                   (.newLine w)
                    (inc total))))
              0 resultset)))
 

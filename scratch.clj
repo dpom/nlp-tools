@@ -435,3 +435,9 @@ start and end positions of the span."
 (ppd [:span "One" :line "Two" :line "Three"])
 
 (ppd [:group "(do" [:nest 2 :line "(step-1)" :line "(step-2)"] ")"])
+
+(def tool (:nlptools.tool/classification system)) 
+
+(def res (tool/apply-tool tool "Vreau sa cumpar un cadou")) 
+
+(meta res) 

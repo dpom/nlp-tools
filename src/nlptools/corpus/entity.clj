@@ -37,7 +37,7 @@
     (log logger :info ::build-corpus! {:file filepath :entity entity})
     (let [entkey (keyword (str "entities." entity))
           resultset (db/query db "nlp"  {:is_valid true entkey {"$exists" true}}["text" "entities"])]
-      (with-open [^java.io.Writer w (io/writer filepath)]
+      (with-open [^java.io.BufferedWriter w (io/writer filepath)]
         (let [total (reduce  (fn [counter item]
                                (let [{:keys [text entities]} item 
                                      value  (get entities (keyword entity))
@@ -57,10 +57,10 @@
     (->EntityCorpus filepath db entity logger)))
 
 (defmethod cmd/help cmdkey [_]
-  (str cmdkey " - create a corpus file for an entity type model."))
+  (str (name cmdkey) " - create a corpus file for an entity type model."))
 
 (defmethod cmd/syntax cmdkey [_]
-  "nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE -t entity")
+  (str "nlptools " (name cmdkey) " -c CONFIG-FILE -o CORPUS-FILE -t entity"))
 
 (defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)

@@ -4,10 +4,10 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
-   [nlptools.command :as cmd]
-   [nlptools.module.mongo :as db]
    [nlptools.spec :as spec]
-   [nlptools.corpus.core :as corpus]))
+   [nlptools.corpus.core :as corpus]
+   [nlptools.module.mongo :as db]
+   [nlptools.command :as cmd]))
 
 (def ukey
   "this unit key"
@@ -25,7 +25,7 @@
   (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
     (let [resultset (db/query db "nlp" {:is_valid true} ["text" "entities"])]
-      (with-open [^java.io.Writer w (io/writer filepath)]
+      (with-open [^java.io.BufferedWriter w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
                    (let [intent (get entities :intent "necunoscut")]
                      ;; (log @logger :debug ::write-line {:counter counter :intent intent :text text})

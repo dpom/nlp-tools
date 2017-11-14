@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.5-dev05"
+(defproject dpom/nlptools "0.5-dev06"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
@@ -21,7 +21,7 @@
                  ]
   :pedantic? :warning
   :plugins [[lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
-            [jonase/eastwood "0.2.4"]
+            [jonase/eastwood "0.2.6-beta2"]
             [lein-kibit "0.1.6" :exclusions [org.clojure/clojure]]
             [lein-cljfmt "0.5.7" :exclusions [org.clojure/clojure org.clojure/clojure rewrite-clj]]
             [lein-environ "1.1.0"]

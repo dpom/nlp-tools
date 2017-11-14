@@ -3,6 +3,7 @@
    [clojure.spec.alpha :as s]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [clojure.test :refer :all]
    [nlptools.tool.core :as tool]
    [nlptools.model.core :as model]
    [nlptools.spec :as spec]
@@ -29,7 +30,7 @@
                             :nlptools/logger]))
 
 
-(defn parse-categories 
+(defn parse-categories
   "Given a string that represents the opennlp outcomes and an array of
   probability outcomes, zip them into a map of category-probability pairs"
   [outcomes-string outcomes]
@@ -44,12 +45,12 @@
     {:pre [(string? text)]}
     (let [classifier (DocumentCategorizerME. model)
           tokens (.tokenize tokenizer  ^String text)
-          outcomes (.categorize classifier tokens)]
+          outcomes (.categorize classifier tokens)
+          best-category (.getBestCategory classifier outcomes)
+          confidences (.scoreMap classifier tokens)]
       (with-meta
-        {:best-category (.getBestCategory classifier outcomes)}
-        {:probabilities (parse-categories
-                         (.getAllResults classifier outcomes)
-                         outcomes)}))))
+        {:value best-category :confidence (get confidences best-category)}
+        {:confidences confidences}))))
 
 (defrecord ClassificationTool [model tokenizer classifier logger]
   tool/Tool
@@ -60,8 +61,8 @@
     (reset! logger newlogger))
   (apply-tool [this text]
     (let [resp (@classifier text)]
-      (log @logger :debug ::apply-tool {:category resp :probabilities (meta resp)})
-      (get resp :best-category "necunoscut"))))
+      (log @logger :debug ::apply-tool {:category resp :confidences (meta resp)})
+      resp)))
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [model tokenizer logger]} spec]
@@ -70,6 +71,29 @@
       (tool/set-logger! classif logger)
       (tool/build-tool! classif)
       classif)))
+
+
+(s/def ::value string?)
+(s/def ::confidence double?)
+(s/def ::confidences (s/map-of string? double?))
+(s/def ::result (s/keys :req-un [::value ::confidence]))
+(s/def ::meta (s/keys :req-un [::confidences]))
+
+;; (deftest apply-tool-test
+;;   (let [config (merge (cmd/make-test-logger)
+;;                       {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+;;                              :model (ig/ref :nlptools.model/classification)
+;;                              :logger (ig/ref :duct.logger/timbre)}
+;;                        :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
+;;                        :nlptools.model/classification {:binfile "test/ema.bin"
+;;                                                        :loadbin? true
+;;                                                        :logger (ig/ref :duct.logger/timbre)}})
+;;         system (ig/init (cmd/prep-igconfig config))
+;;         classifier (get system ukey)
+;;         res (tool/apply-tool classifier "Vreau sa fac un cadou")]
+;;     (is (s/valid? ::result res))
+;;     (is (s/valid? ::meta (meta res)))
+;;     (is (= "cadou" (:value res)))))
 
 
 
@@ -84,8 +108,8 @@
         {:keys [in text]} opts
         config (merge (cmd/make-logger opts)
                       {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
-                          :model (ig/ref :nlptools.model/classification)
-                          :logger (ig/ref :duct.logger/timbre)}
+                             :model (ig/ref :nlptools.model/classification)
+                             :logger (ig/ref :duct.logger/timbre)}
                        :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
                        :nlptools.model/classification {:binfile in
                                                        :loadbin? true
