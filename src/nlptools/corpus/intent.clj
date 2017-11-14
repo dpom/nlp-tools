@@ -1,20 +1,31 @@
 (ns nlptools.corpus.intent
   (:require
+   [clojure.spec.alpha :as s]
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
-   [nlptools.command :as cmd]
-   [nlptools.corpus.core :refer [Corpus]]
-   ))
+   [nlptools.spec :as spec]
+   [nlptools.corpus.core :as corpus]
+   [nlptools.module.mongo :as db]
+   [nlptools.command :as cmd]))
+
+(def ukey
+  "this unit key"
+  :nlptools.corpus/intent)
+
+(def cmdkey
+  "the command key for this unit"
+  :corpus.intent)
+
+(derive ukey corpus/corekey)
 
 
-
-(defrecord Boundary [filepath db logger]
-  Corpus
+(defrecord IntentCorpus [filepath db logger]
+  corpus/Corpus
   (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
-    (let [resultset (.query db "nlp" {:is_valid true} ["text" "entities"])]
-      (with-open [w (io/writer filepath)]
+    (let [resultset (db/query db "nlp" {:is_valid true} ["text" "entities"])]
+      (with-open [^java.io.BufferedWriter w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
                    (let [intent (get entities :intent "necunoscut")]
                      ;; (log @logger :debug ::write-line {:counter counter :intent intent :text text})
@@ -26,26 +37,26 @@
           )))
     this))
  
-(defmethod ig/init-key :nlptools.corpus/intent [_ spec]
+(defmethod ig/init-key ukey [_ spec]
   (let [{:keys [db filepath logger]} spec]
-    (->Boundary filepath db logger)))
+    (->IntentCorpus filepath db logger)))
 
-(defmethod cmd/help :corpus.intent [_]
-  "corpus.intent - create a corpus file for an intent type classification model.")
+(defmethod cmd/help cmdkey [_]
+  (str (name cmdkey) " - create a corpus file for an intent type classification model."))
 
-(defmethod cmd/syntax :corpus.intent [_]
-  "nlptools corpus.intent -c CONFIG-FILE -o CORPUS-FILE")
+(defmethod cmd/syntax cmdkey [_]
+  (str "nlptools " (name cmdkey) " -c CONFIG-FILE -o CORPUS-FILE"))
 
-(defmethod cmd/run :corpus.intent [_ options summary]
+(defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
         config (merge (cmd/make-logger opts)
-                      {:nlptools.corpus/intent {:db (ig/ref :nlptools.module/mongo)
-                                                :filepath (:out opts)
-                                                :logger (ig/ref :duct.logger/timbre)}
+                      {ukey {:db (ig/ref :nlptools.module/mongo)
+                             :filepath (:out opts)
+                             :logger (ig/ref :duct.logger/timbre)}
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (.build-corpus! corpus)
+    (corpus/build-corpus! corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))

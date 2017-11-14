@@ -9,7 +9,7 @@
   (query [this sql row-fun resultset-fn]))
 
 
-(defrecord Boundary [dbspec]
+(defrecord SQLDb [dbspec]
   SQL
   (query [this sql row-fn resultset-fn]
     (let [row-fn-map (if row-fn {:row-fn row-fn})
@@ -17,7 +17,7 @@
         (j/query dbspec sql (merge row-fn-map resultset-fn-map)))))
 
 (defmethod ig/init-key :nlptools.module/db [_ spec]
-    (->Boundary {:datasource (hik/make-datasource (dissoc spec :logger))}))
+    (->SQLDb {:datasource (hik/make-datasource (dissoc spec :logger))}))
 
 
 (defmethod ig/halt-key! :nlptools.module/db [_ db]

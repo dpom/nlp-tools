@@ -4,8 +4,7 @@
    [clojure.tools.cli :refer [parse-opts]]
    [environ.core :refer [env]]
    [clojure.test :refer :all]
-   [nlptools.command :as cmd]
-   )
+   [nlptools.command :as cmd])
   (:gen-class))
 
 
@@ -22,7 +21,14 @@
    ["-t" "--text TEXT" "The text to be parsed"]
    ])
 
-(def commands [:stemmer :stopwords :classification :model.classification :corpus.intent])
+(def commands [:tool.classification
+               :tool.entity
+               :tool.stemmer
+               :tool.stopwords
+               :model.classification
+               :model.entity
+               :corpus.intent
+               :corpus.entity])
 
 (defn print-msg
   "Print informal messages on the console.

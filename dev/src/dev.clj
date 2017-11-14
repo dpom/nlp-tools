@@ -2,8 +2,12 @@
   (:refer-clojure :exclude [test])
   (:require
    [clojure.repl :refer :all]
-   [clojure.pprint :as pp]
-   [nlptools.core :as nlp]
+   [fipp.edn :refer [pprint] :rename {pprint fipp}]
+   ;; [nlptools.core :as nlp]
+   [nlptools.tool.core :as tool]
+   [nlptools.model.core :as model]
+   [nlptools.corpus.core :as corpus]
+   [nlptools.command :as cmd]
    [clojure.tools.namespace.repl :refer [refresh]]
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
