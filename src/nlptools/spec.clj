@@ -12,6 +12,7 @@
 
 
 
+(s/def :nlptools/id string?)
 (s/def :nlptools/logger map?)
 ;; (s/def :model/logger #(instance? Logger %))
 (s/def :nlptools/language string?)

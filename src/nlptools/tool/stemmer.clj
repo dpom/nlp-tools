@@ -22,22 +22,22 @@
 (derive ukey tool/corekey)
 
 
-(defrecord StemmerTool [stemmer lang logger]
+(defrecord StemmerTool [id stemmer lang logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :info ::build-tool {:lang lang})
+    (log @logger :info ::build-tool {:id id :lang lang})
     (reset! stemmer (snowball/stemmer (get languages-codes lang :romanian)))
     this)
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   (apply-tool [this text]
-    (log @logger :debug ::apply-tool {:text text})
+    (log @logger :debug ::apply-tool {:id id :text text})
     (@stemmer text)))
 
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [language logger]} spec]
+  (let [{:keys [id language logger]} spec]
     (log logger :debug ::init)
-    (let [stemmer (->StemmerTool (atom nil) language (atom nil))]
+    (let [stemmer (->StemmerTool id (atom nil) language (atom nil))]
       (tool/set-logger! stemmer logger)
       (tool/build-tool! stemmer)
       stemmer)))
@@ -46,7 +46,8 @@
 
 (deftest apply-tool-test
   (let [config (merge (cmd/make-test-logger :error)
-                      {ukey {:language "ro" 
+                      {ukey {:id "tets stemmer"
+                             :language "ro"
                              :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         stemmer (get system ukey)
@@ -63,13 +64,13 @@
 
 (defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
-        k :nlptools.tool/stemmer
+        {:keys [language text] :or {text ""}} opts
         config (merge (cmd/make-logger opts)
-                      {k {:language (:language opts)
-                          :logger (ig/ref :duct.logger/timbre)}})
+                      {ukey {:id "run stemmer"
+                             :language language
+                             :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
-        stemmer (get system k)
-        word (get opts :text "")]
-    (printf "word: %s,\nstem: %s\n" word (tool/apply-tool stemmer word))
+        stemmer (get system ukey)]
+    (printf "word: %s,\nstem: %s\n" text (tool/apply-tool stemmer text))
     (ig/halt! system)
     0))

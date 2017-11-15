@@ -21,15 +21,21 @@ Each action should implement 3 multimethod (defined in =command.clj=):
 - help :: return the help string
 - syntax :: return the syntax string
 
-** model
+** model folder
 
 Contains models implementations.
 
-** corpus
+The =core= unit contains the =Model= protocol and specific spec keys.
+
+** corpus folder
 
 Contains corpus builder implementations.
 
+** tool folder
+
+Contains end user tools implementations.
+
 ** module
 
-Contains integrant modules.
+Contains integrant modules used by the other units (usually =corpus= units).
 
