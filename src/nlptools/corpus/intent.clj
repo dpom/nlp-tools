@@ -20,10 +20,10 @@
 (derive ukey corpus/corekey)
 
 
-(defrecord IntentCorpus [filepath db logger]
+(defrecord IntentCorpus [id filepath db logger]
   corpus/Corpus
   (build-corpus! [this]
-    (log logger :info ::creating-corpus {:file filepath})
+    (log logger :info ::creating-corpus {:id id :file filepath})
     (let [resultset (db/query db "nlp" {:is_valid true} ["text" "entities"])]
       (with-open [^java.io.BufferedWriter w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
@@ -33,13 +33,14 @@
                      (.newLine w)
                      (inc counter)))
                              0 resultset)]
-          (log logger :info ::corpus-created {:total total :file filepath})
+          (log logger :info ::corpus-created {:id id :total total :file filepath})
           )))
-    this))
+    this)
+  (get-id [this] id))
  
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [db filepath logger]} spec]
-    (->IntentCorpus filepath db logger)))
+  (let [{:keys [id db filepath logger]} spec]
+    (->IntentCorpus id filepath db logger)))
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - create a corpus file for an intent type classification model."))
@@ -50,7 +51,8 @@
 (defmethod cmd/run cmdkey [_ options summary]
   (let [opts  (cmd/set-config options)
         config (merge (cmd/make-logger opts)
-                      {ukey {:db (ig/ref :nlptools.module/mongo)
+                      {ukey {:id "intent corpus"
+                             :db (ig/ref :nlptools.module/mongo)
                              :filepath (:out opts)
                              :logger (ig/ref :duct.logger/timbre)}
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})

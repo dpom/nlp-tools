@@ -9,7 +9,8 @@
   :nlptools/corpus)
 
 (defprotocol Corpus
-  (build-corpus! [this] "Build and save corpus."))
+  (build-corpus! [this] "Build and save corpus")
+  (get-id [this] "Get corpus id"))
 
 (s/def :corpus/filepath string?)
 (s/def :corpus/db map?)

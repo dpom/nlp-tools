@@ -34,18 +34,19 @@
   [text]
   (str/split text #"\s+"))
 
-(defrecord StopwordsTool [stopwords tokenizer filepath logger]
+(defrecord StopwordsTool [id stopwords tokenizer filepath logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :info ::build-tool {:filepath filepath})
+    (log @logger :info ::build-tool {:id id :filepath filepath})
     (reset! stopwords (into (hash-set) (-> filepath
                                            slurp
                                            split-words
                                            ))))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
+  (get-id [this] id)
   (apply-tool [this text]
-    (log @logger :debug ::apply-tool {:text text})
+    (log @logger :debug ::apply-tool {:id id :text text})
     (->> text
          str/lower-case
          (.tokenize ^Tokenizer (model/get-model tokenizer))
@@ -53,9 +54,9 @@
          (remove @stopwords))))
 
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
-    (log logger :debug ::init)
-    (let [tool (->StopwordsTool (atom nil) tokenizer filepath (atom nil))]
+  (let [{:keys [id filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
+    (log logger :debug ::init {:id id})
+    (let [tool (->StopwordsTool id (atom nil) tokenizer filepath (atom nil))]
       (tool/set-logger! tool logger)
       (tool/build-tool! tool)
       tool)))
@@ -65,9 +66,11 @@
 
 (deftest apply-tool-test
   (let [config (merge (cmd/make-test-logger :error)
-                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                      {ukey {:id "test stopwords"
+                             :tokenizer (ig/ref :nlptools.model.tokenizer/simple)
                              :logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}})
+                       :nlptools.model.tokenizer/simple {:id "test tokenizer"
+                                                         :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         remover (get system ukey)
         res (tool/apply-tool remover "Acesta este un televizor Samsung")]

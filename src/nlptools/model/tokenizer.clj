@@ -19,13 +19,13 @@
    ))
 
 
-(defrecord TokModel [binfile, trainfile, language, model, logger]
+(defrecord TokModel [id binfile, trainfile, language, model, logger]
   model/Model
   (load-model! [this]
-    (log @logger :debug ::load-model {:file binfile})
+    (log @logger :debug ::load-model {:id id :file binfile})
     (reset! model (TokenizerModel. (io/as-file binfile))))
   (train-model! [this]
-    (log @logger :debug ::train {:file trainfile :lang language})
+    (log @logger :debug ::train {:id id :file trainfile :lang language})
     (reset! model (TokenizerME/train (TokenSampleStream.
                                       (PlainTextByLineStream.
                                        (MarkableFileInputStreamFactory. (io/file trainfile)) "UTF-8"))
@@ -34,10 +34,11 @@
                                        (.put TrainingParameters/ITERATIONS_PARAM "100")
                                        (.put TrainingParameters/CUTOFF_PARAM     "5")))))
   (save-model! [this]
-    (log @logger :debug ::save-model! {:file binfile})
+    (log @logger :debug ::save-model! {:id id :file binfile})
     (.serialize ^TokenizerModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
+  (get-id [this] id)
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
@@ -45,13 +46,14 @@
 (defrecord SimpleTokModel [logger]
   model/Model
   (load-model! [this]
-    (log @logger :debug ::load-model! {:action :no-action}))
+    (log @logger :debug ::load-model! {:id "SimpleTokenizer" :action :no-action}))
   (train-model! [this]
-    (log @logger :debug ::train-model! {:action :no-action}))
+    (log @logger :debug ::train-model! {:id "SimpleTokenizer" :action :no-action}))
   (save-model! [this]
-    (log @logger :debug ::save-model! {:action :no-action}))
+    (log @logger :debug ::save-model! {:id "SimpleTokenizer" :action :no-action}))
   (get-model [this]
     SimpleTokenizer/INSTANCE)
+  (get-id [this] "SimpleTokenizer")
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
@@ -66,6 +68,7 @@
     (log @logger :debug ::save-model! {:action :no-action}))
   (get-model [this]
     WhitespaceTokenizer/INSTANCE)
+  (get-id [this] "WhitespaceTokenizer")
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
