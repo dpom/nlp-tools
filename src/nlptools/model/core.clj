@@ -15,6 +15,7 @@
   (train-model! [this] "Train the model")
   (save-model! [this] "Save the model")
   (get-model [this] "Get the model")
+  (get-id [this] "Get the model id")
   (set-logger! [this newlogger] "Set a new logger"))
 
 (s/def :model/binfile string?)
@@ -29,7 +30,7 @@
 
 (defmethod ig/pre-init-spec corekey [_]
   ;; (s/or :model/binconfig :model/trainconfig))
-  (spec/known-keys :req-un [:nlptools/logger]
+  (spec/known-keys :req-un [:nlptools/id :nlptools/logger]
                    :opt-un [:model/binfile
                             :model/trainfile
                             :model/loadbin?

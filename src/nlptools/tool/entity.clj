@@ -28,7 +28,8 @@
 (derive ukey tool/corekey)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:nlptools/model
+  (spec/known-keys :req-un [:nlptools/id
+                            :nlptools/model
                             :nlptools/tokenizer 
                             :nlptools/logger]))
 
@@ -51,22 +52,23 @@
                :confidence (.getProb m)})
             matches vals))))
 
-(defrecord EntityTool [model tokenizer finder logger]
+(defrecord EntityTool [id model tokenizer finder logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool!)
+    (log @logger :debug ::build-tool! {:id id :model (modl/get-id model) :tokenizer (modl/get-id tokenizer) })
     (reset! finder (make-entity-finder (modl/get-model model) (modl/get-model tokenizer) logger)))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
+  (get-id [this] id)
   (apply-tool [this text]
     (let [entities (@finder text)]
       (log @logger :debug ::apply-tool {:entities entities})
       entities)))  
 
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [model tokenizer logger]} spec]
-    (log logger :debug ::init)
-    (let [classif (->EntityTool model tokenizer (atom nil) (atom nil))]
+  (let [{:keys [id model tokenizer logger]} spec]
+    (log logger :debug ::init {:id id})
+    (let [classif (->EntityTool id model tokenizer (atom nil) (atom nil))]
       (tool/set-logger! classif logger)
       (tool/build-tool! classif)
       classif)))
@@ -82,11 +84,14 @@
 
 (deftest apply-tool-test
   (let [config (merge (cmd/make-test-logger :error)
-                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                      {ukey {:id "test entity"
+                             :tokenizer (ig/ref :nlptools.model.tokenizer/simple)
                              :model (ig/ref :nlptools.model/entity)
                              :logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model/entity {:binfile "test/category.bin"
+                       :nlptools.model.tokenizer/simple {:id "test tokenizer"
+                                                         :logger (ig/ref :duct.logger/timbre)}
+                       :nlptools.model/entity {:id "test model"
+                                               :binfile "test/category.bin"
                                                :loadbin? true
                                                :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
@@ -105,11 +110,14 @@
   (let [opts  (cmd/set-config options)
         {:keys [in text]} opts
         config (merge (cmd/make-logger opts)
-                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                      {ukey {:id "run entity"
+                             :tokenizer (ig/ref :nlptools.model.tokenizer/simple)
                              :model (ig/ref :nlptools.model/entity)
                              :logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model/entity {:binfile in
+                       :nlptools.model.tokenizer/simple {:id "run tokenizer"
+                                                         :logger (ig/ref :duct.logger/timbre)}
+                       :nlptools.model/entity {:id "run model"
+                                               :binfile in
                                                :loadbin? true
                                                :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
