@@ -70,3 +70,8 @@ For lein add in you project.clj:
 
 See the [[https://dpom.github.io/nlp-tools][documentation]] for more information.
 
+** LICENSE
+
+Copyright © 2017 Dan Pomohaci
+
+This project is licensed under the terms of the  Apache License 2.0.
