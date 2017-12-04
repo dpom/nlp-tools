@@ -25,16 +25,17 @@
 (s/def :corpus/entity string?)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:corpus/entity
+  (spec/known-keys :req-un [:nlptools/id
+                            :corpus/entity
                             :corpus/filepath
                             :corpus/db
                             :nlptools/logger]))
 
 
-(defrecord EntityCorpus [filepath db entity logger]
+(defrecord EntityCorpus [id filepath db entity logger]
   corpus/Corpus
   (build-corpus! [this]
-    (log logger :info ::build-corpus! {:file filepath :entity entity})
+    (log logger :info ::build-corpus! {:id id :file filepath :entity entity})
     (let [entkey (keyword (str "entities." entity))
           resultset (db/query db "nlp"  {:is_valid true entkey {"$exists" true}}["text" "entities"])]
       (with-open [^java.io.BufferedWriter w (io/writer filepath)]
@@ -48,13 +49,14 @@
                                  (.newLine w)
                                  (inc counter)))
                              0 resultset)]
-          (log logger :info ::corpus-created {:total total :file filepath})
+          (log logger :info ::corpus-created {:id id :total total :file filepath})
           )))
-    this))
+    this)
+  (get-id [this] id))
  
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [db filepath entity logger]} spec]
-    (->EntityCorpus filepath db entity logger)))
+  (let [{:keys [id db filepath entity logger]} spec]
+    (->EntityCorpus id filepath db entity logger)))
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - create a corpus file for an entity type model."))
@@ -66,7 +68,8 @@
   (let [opts  (cmd/set-config options)
         {:keys [out mongodb text]} opts
         config (merge (cmd/make-logger opts)
-                      {ukey {:entity text
+                      {ukey {:id "entity corpus"
+                             :entity text
                              :db (ig/ref :nlptools.module/mongo)
                              :filepath out
                              :logger (ig/ref :duct.logger/timbre)}

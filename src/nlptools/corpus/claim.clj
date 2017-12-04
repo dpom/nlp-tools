@@ -45,18 +45,19 @@
              0 resultset)))
 
 
-(defrecord ClaimCorpus [filepath db logger]
+(defrecord ClaimCorpus [id filepath db logger]
   corpus/Corpus
   (build-corpus! [this]
     (log logger :info ::creating-corpus {:file filepath})
     (db/query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
             filter-row
             (partial write-corpus! filepath))
-    this))
+    this)
+  (get-id [this] id))
  
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [db filepath logger]} spec]
-    (->ClaimCorpus filepath db logger)))
+  (let [{:keys [id db filepath logger]} spec]
+    (->ClaimCorpus id filepath db logger)))
 
 
 

@@ -25,7 +25,8 @@
 (derive ukey tool/corekey)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:nlptools/model
+  (spec/known-keys :req-un [:nlptools/id
+                            :nlptools/model
                             :nlptools/tokenizer
                             :nlptools/logger]))
 
@@ -51,22 +52,23 @@
         {:value best-category :confidence (get confidences best-category)}
         {:confidences confidences}))))
 
-(defrecord ClassificationTool [model tokenizer classifier logger]
+(defrecord ClassificationTool [id model tokenizer classifier logger]
   tool/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool! {:model model :tokenizer tokenizer})
+    (log @logger :debug ::build-tool! {:id id :model (modl/get-id model) :tokenizer (modl/get-id tokenizer)})
     (reset! classifier (make-document-classifier (modl/get-model model) (modl/get-model tokenizer))))
   (set-logger! [this newlogger]
     (reset! logger newlogger))
+  (get-id [this] id)
   (apply-tool [this text]
     (let [resp (@classifier text)]
-      (log @logger :debug ::apply-tool {:category resp :confidences (meta resp)})
+      (log @logger :debug ::apply-tool {:id id :category resp :confidences (meta resp)})
       resp)))
 
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [model tokenizer logger]} spec]
-    (log logger :debug ::init)
-    (let [classif (->ClassificationTool model tokenizer (atom nil) (atom nil))]
+  (let [{:keys [id model tokenizer logger]} spec]
+    (log logger :debug ::init {:id id})
+    (let [classif (->ClassificationTool id model tokenizer (atom nil) (atom nil))]
       (tool/set-logger! classif logger)
       (tool/build-tool! classif)
       classif)))
@@ -106,11 +108,13 @@
   (let [opts  (cmd/set-config options)
         {:keys [in text]} opts
         config (merge (cmd/make-logger opts)
-                      {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
+                      {ukey {:id "classif tool"
+                             :tokenizer (ig/ref :nlptools.model.tokenizer/simple)
                              :model (ig/ref :nlptools.model/classification)
                              :logger (ig/ref :duct.logger/timbre)}
                        :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model/classification {:binfile in
+                       :nlptools.model/classification {:id "classif model"
+                                                       :binfile in
                                                        :loadbin? true
                                                        :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))

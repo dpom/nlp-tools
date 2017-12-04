@@ -29,7 +29,7 @@
 (derive ukey modl/corekey)
 
 
-(defrecord ClassificationModel [binfile, trainfile, language, model, logger]
+(defrecord ClassificationModel [id binfile, trainfile, language, model, logger]
   modl/Model
   (load-model! [this]
     (log @logger :debug ::load-model {:file binfile})
@@ -48,15 +48,16 @@
     (.serialize ^DoccatModel @model (io/as-file binfile)))
   (get-model [this]
     @model)
+  (get-id [this] id)
   (set-logger! [this newlogger]
     (reset! logger newlogger))
   )
 
 
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
-        classif (->ClassificationModel  binfile trainfile language (atom nil) (atom nil))]
-    (log logger :info ::init {:lang language :binfile binfile :loadbin? loadbin?})
+  (let [{:keys [id language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
+        classif (->ClassificationModel id binfile trainfile language (atom nil) (atom nil))]
+    (log logger :info ::init {:id id :lang language :binfile binfile :loadbin? loadbin?})
     (modl/set-logger! classif logger)
     (if loadbin?
       (modl/load-model! classif)
@@ -73,7 +74,8 @@
   (let [opts  (cmd/set-config options)
         {:keys [in out language]} opts
         config (merge (cmd/make-logger opts)
-                      {ukey {:language language
+                      {ukey {:id "classif"
+                             :language language
                              :binfile out
                              :trainfile in
                              :loadbin? false
