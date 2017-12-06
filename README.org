@@ -63,7 +63,7 @@ nlptools corpus.entity -c CONFIG-FILE -o CORPUS-FILE -t entity
 
 *** Lib
 
-For lein add in you project.clj:
+For lein add to your project.clj:
 
 [[https://clojars.org/dpom/nlptools][https://img.shields.io/clojars/v/dpom/nlptools.svg]]
 
