@@ -1,6 +1,9 @@
 (defproject dpom/nlptools "0.6.0"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
+  :license {:name "Apache License 2.0"
+            :url "https://www.apache.org/licenses/LICENSE-2.0.html"
+            :distribution :repo}
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0-RC2"]
                  [org.clojure/tools.cli "0.3.5"]
