@@ -6,6 +6,8 @@
    [clojure.test :refer :all]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.tool.core :as tool]
    [nlptools.command :as cmd]
    [nlptools.model.core :as model])
@@ -35,30 +37,31 @@
   (str/split text #"\s+"))
 
 (defrecord StopwordsTool [id stopwords tokenizer filepath logger]
-  tool/Tool
+  core/Tool
   (build-tool! [this]
     (log @logger :info ::build-tool {:id id :filepath filepath})
     (reset! stopwords (into (hash-set) (-> filepath
                                            slurp
                                            split-words
                                            ))))
-  (set-logger! [this newlogger]
-    (reset! logger newlogger))
-  (get-id [this] id)
-  (apply-tool [this text]
+  (apply-tool [this text _]
     (log @logger :debug ::apply-tool {:id id :text text})
     (->> text
          str/lower-case
-         (.tokenize ^Tokenizer (model/get-model tokenizer))
+         (.tokenize ^Tokenizer (core/get-model tokenizer))
          (remove punctuation)
          (remove @stopwords))))
+
+(extend StopwordsTool
+  core/Module
+  core/default-module-impl)
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id filepath logger tokenizer] :or {filepath (io/resource "stop_words.ro")}} spec]
     (log logger :debug ::init {:id id})
     (let [tool (->StopwordsTool id (atom nil) tokenizer filepath (atom nil))]
-      (tool/set-logger! tool logger)
-      (tool/build-tool! tool)
+      (core/set-logger! tool logger)
+      (core/build-tool! tool)
       tool)))
 
 
@@ -73,7 +76,7 @@
                                                          :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         remover (get system ukey)
-        res (tool/apply-tool remover "Acesta este un televizor Samsung")]
+        res (core/apply-tool remover "Acesta este un televizor Samsung" {})]
     (is (s/valid? ::result res))
     (is (= ["televizor" "samsung"] res))))
 
@@ -93,6 +96,6 @@
         system (ig/init (cmd/prep-igconfig config))
         stopwords (get system ukey)
         text (get opts :text "")]
-    (printf "text         : %s,\nw/o stopwords: %s\n" text (str/join " "(tool/apply-tool stopwords text)))
+    (printf "text         : %s,\nw/o stopwords: %s\n" text (str/join " "(core/apply-tool stopwords text {})))
     (ig/halt! system)
     0))

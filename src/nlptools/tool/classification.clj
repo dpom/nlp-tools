@@ -4,8 +4,9 @@
    [integrant.core :as ig]
    [duct.logger :refer [log]]
    [clojure.test :refer :all]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.tool.core :as tool]
-   [nlptools.model.core :as modl]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
   (:import
@@ -25,10 +26,10 @@
 (derive ukey tool/corekey)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:nlptools/id
-                            :nlptools/model
-                            :nlptools/tokenizer
-                            :nlptools/logger]))
+  (nsp/known-keys :req-un [:nlpcore/id
+                           :nlpcore/model
+                           :nlptools/tokenizer
+                           :nlpcore/logger]))
 
 
 (defn parse-categories
@@ -53,24 +54,26 @@
         {:confidences confidences}))))
 
 (defrecord ClassificationTool [id model tokenizer classifier logger]
-  tool/Tool
+  core/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool! {:id id :model (modl/get-id model) :tokenizer (modl/get-id tokenizer)})
-    (reset! classifier (make-document-classifier (modl/get-model model) (modl/get-model tokenizer))))
-  (set-logger! [this newlogger]
-    (reset! logger newlogger))
-  (get-id [this] id)
-  (apply-tool [this text]
+    (log @logger :debug ::build-tool! {:id id :model (core/get-id model) :tokenizer (core/get-id tokenizer)})
+    (reset! classifier (make-document-classifier (core/get-model model) (core/get-model tokenizer))))
+  (apply-tool [this text _]
     (let [resp (@classifier text)]
       (log @logger :debug ::apply-tool {:id id :category resp :confidences (meta resp)})
       resp)))
+
+(extend ClassificationTool
+  core/Module
+  core/default-module-impl)
+
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id model tokenizer logger]} spec]
     (log logger :debug ::init {:id id})
     (let [classif (->ClassificationTool id model tokenizer (atom nil) (atom nil))]
-      (tool/set-logger! classif logger)
-      (tool/build-tool! classif)
+      (core/set-logger! classif logger)
+      (core/build-tool! classif)
       classif)))
 
 
@@ -120,6 +123,6 @@
         system (ig/init (cmd/prep-igconfig config))
         classifier (get system ukey)
         text (get opts :text "")]
-    (printf "text: %s,\ncategory: %s\n" text (tool/apply-tool classifier text))
+    (printf "text: %s,\ncategory: %s\n" text (core/apply-tool classifier text {}))
     (ig/halt! system)
     0))

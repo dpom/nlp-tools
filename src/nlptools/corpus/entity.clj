@@ -6,6 +6,11 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [duct.logger :refer [log]]
+   [clojure.test :refer :all]
+   [clojure.spec.test.alpha :as stest]
+   [clojure.spec.gen.alpha :as gen]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.command :as cmd]
    [nlptools.module.mongo :as db]
    [nlptools.spec :as spec]
@@ -25,17 +30,17 @@
 (s/def :corpus/entity string?)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:nlptools/id
+  (nsp/known-keys :req-un [:nlpcore/id
                             :corpus/entity
                             :corpus/filepath
                             :corpus/db
-                            :nlptools/logger]))
+                            :nlpcore/logger]))
 
 
 (defrecord EntityCorpus [id filepath db entity logger]
-  corpus/Corpus
+  core/Corpus
   (build-corpus! [this]
-    (log logger :info ::build-corpus! {:id id :file filepath :entity entity})
+    (log @logger :info ::build-corpus! {:id id :file filepath :entity entity})
     (let [entkey (keyword (str "entities." entity))
           resultset (db/query db "nlp"  {:is_valid true entkey {"$exists" true}}["text" "entities"])]
       (with-open [^java.io.BufferedWriter w (io/writer filepath)]
@@ -49,14 +54,20 @@
                                  (.newLine w)
                                  (inc counter)))
                              0 resultset)]
-          (log logger :info ::corpus-created {:id id :total total :file filepath})
-          )))
+          (log @logger :info ::corpus-created {:id id :total total :file filepath}))))
     this)
-  (get-id [this] id))
+  (get-corpus [this] filepath))
+
+(extend EntityCorpus
+  core/Module
+  core/default-module-impl)
  
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [id db filepath entity logger]} spec]
-    (->EntityCorpus id filepath db entity logger)))
+  (let [{:keys [id db filepath entity logger]} spec
+        corpus (->EntityCorpus id filepath db entity (atom nil))]
+    (core/set-logger! corpus logger)
+    corpus))
+
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - create a corpus file for an entity type model."))
@@ -76,7 +87,7 @@
                        :nlptools.module/mongo (assoc mongodb :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (get system ukey)]
-    (corpus/build-corpus! corpus)
+    (core/build-corpus! corpus)
     (printf "build %s entity corpus in: %s\n" (:entity corpus) (:filepath corpus) )
     (ig/halt! system)
     0))

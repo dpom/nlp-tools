@@ -5,6 +5,8 @@
    [stemmer.snowball :as snowball]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.tool.core :as tool]
    [nlptools.command :as cmd]))
 
@@ -23,23 +25,25 @@
 
 
 (defrecord StemmerTool [id stemmer lang logger]
-  tool/Tool
+  core/Tool
   (build-tool! [this]
     (log @logger :info ::build-tool {:id id :lang lang})
     (reset! stemmer (snowball/stemmer (get languages-codes lang :romanian)))
     this)
-  (set-logger! [this newlogger]
-    (reset! logger newlogger))
-  (apply-tool [this text]
+  (apply-tool [this text _]
     (log @logger :debug ::apply-tool {:id id :text text})
     (@stemmer text)))
+
+(extend StemmerTool
+  core/Module
+  core/default-module-impl)
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id language logger]} spec]
     (log logger :debug ::init)
     (let [stemmer (->StemmerTool id (atom nil) language (atom nil))]
-      (tool/set-logger! stemmer logger)
-      (tool/build-tool! stemmer)
+      (core/set-logger! stemmer logger)
+      (core/build-tool! stemmer)
       stemmer)))
 
 (s/def ::result string?)
@@ -51,7 +55,7 @@
                              :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         stemmer (get system ukey)
-        res (tool/apply-tool stemmer "copiilor")]
+        res (core/apply-tool stemmer "copiilor" {})]
     (is (s/valid? ::result res))
     (is (= "cop" res))))
 
@@ -71,6 +75,6 @@
                              :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         stemmer (get system ukey)]
-    (printf "word: %s,\nstem: %s\n" text (tool/apply-tool stemmer text))
+    (printf "word: %s,\nstem: %s\n" text (core/apply-tool stemmer text {}))
     (ig/halt! system)
     0))

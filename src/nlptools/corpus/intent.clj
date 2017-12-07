@@ -4,6 +4,8 @@
    [integrant.core :as ig]
    [clojure.java.io :as io]
    [duct.logger :refer [log]]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.spec :as spec]
    [nlptools.corpus.core :as corpus]
    [nlptools.module.mongo :as db]
@@ -21,26 +23,39 @@
 
 
 (defrecord IntentCorpus [id filepath db logger]
-  corpus/Corpus
+  core/Corpus
   (build-corpus! [this]
-    (log logger :info ::creating-corpus {:id id :file filepath})
+    (log @logger :info ::creating-corpus {:id id :file filepath})
     (let [resultset (db/query db "nlp" {:is_valid true} ["text" "entities"])]
       (with-open [^java.io.BufferedWriter w (io/writer filepath)]
         (let [total (reduce  (fn [counter {:keys [text entities]}]
-                   (let [intent (get entities :intent "necunoscut")]
-                     ;; (log @logger :debug ::write-line {:counter counter :intent intent :text text})
-                     (.write w (format "%s %s" intent text))
-                     (.newLine w)
-                     (inc counter)))
+                               (let [intent (get entities :intent "necunoscut")]
+                                 ;; (log @logger :debug ::write-line {:counter counter :intent intent :text text})
+                                 (.write w (format "%s %s" intent text))
+                                 (.newLine w)
+                                 (inc counter)))
                              0 resultset)]
-          (log logger :info ::corpus-created {:id id :total total :file filepath})
+          (log @logger :info ::corpus-created {:id id :total total :file filepath})
           )))
     this)
-  (get-id [this] id))
- 
+  (get-corpus [this] filepath))
+
+(extend IntentCorpus
+  core/Module
+  core/default-module-impl)
+
+(defmethod ig/pre-init-spec ukey [_]
+  (nsp/known-keys :req-un [:nlpcore/id
+                           :corpus/filepath
+                           :corpus/db
+                           :nlpcore/logger]))
+
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [id db filepath logger]} spec]
-    (->IntentCorpus id filepath db logger)))
+  (let [{:keys [id db filepath logger]} spec
+        corpus (->IntentCorpus id filepath db (atom nil))]
+    (core/set-logger! corpus logger)
+    corpus))
+
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - create a corpus file for an intent type classification model."))
@@ -58,7 +73,7 @@
                        :nlptools.module/mongo (assoc (:mongodb opts) :logger (ig/ref :duct.logger/timbre))})
         system (ig/init (cmd/prep-igconfig config))
         corpus (:nlptools.corpus/intent system)]
-    (corpus/build-corpus! corpus)
+    (core/build-corpus! corpus)
     (printf "build intent corpus in: %s\n" (:filepath corpus) )
     (ig/halt! system)
     0))

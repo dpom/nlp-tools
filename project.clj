@@ -1,24 +1,24 @@
-(defproject dpom/nlptools "0.6-dev01"
+(defproject dpom/nlptools "0.6-dev02"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.9.0-beta4"]
+  :dependencies [[org.clojure/clojure "1.9.0-RC2"]
                  [org.clojure/tools.cli "0.3.5"]
-                 [org.clojure/tools.reader "1.1.0"]
+                 [org.clojure/tools.reader "1.1.1"]
                  [environ "1.1.0"]
                  [integrant "0.6.1"]
                  ;; [duct/logger "0.2.1"]
                  [duct/logger.timbre "0.4.1"]
                  ;; [com.fzakaria/slf4j-timbre "0.3.7"]
-                 [org.clojure/java.jdbc "0.7.1"]
+                 [org.clojure/java.jdbc "0.7.3"]
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]
                  [com.novemberain/monger "3.1.0"]
-                 [org.jsoup/jsoup "1.10.3"]
+                 [org.jsoup/jsoup "1.11.2"]
                  [org.languagetool/language-ro "3.9" :exclusions [com.google.guava/guava]]
                  [org.apache.opennlp/opennlp-tools "1.8.3"]
                  [snowball-stemmer "0.1.0"]
-                 ]
+                 [dpom/nlpcore "1.0" :exclusions [duct/logger]]]
   :pedantic? :warning
   :plugins [[lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
             [jonase/eastwood "0.2.6-beta2"]
@@ -36,7 +36,7 @@
                    :dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [integrant/repl "0.2.0" :exclusions [org.clojure/tools.namespace]]
                                   [org.clojure/tools.trace "0.7.9"]
-                                  [fipp "0.6.10"]
+                                  [fipp "0.6.12"]
                                   ]}
              :uberjar {:aot [nlptools.core]}} 
   :jvm-opts ["-Xmx2048m"]
