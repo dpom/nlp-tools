@@ -10,6 +10,10 @@
 
 * Architecture
 
+The nlptools development is based on:
+- Integrant component (see [[https://github.com/weavejester/integrant][integrant]])
+- nlpcore protocols (see [[https://dpom.github.io/nlpcore/api/nlpcore.protocols.html][API]])
+
 ** core
 
 Implement the CLI.
@@ -21,11 +25,12 @@ Each action should implement 3 multimethod (defined in =command.clj=):
 - help :: return the help string
 - syntax :: return the syntax string
 
+
 ** model folder
 
 Contains models implementations.
 
-The =core= unit contains the =Model= protocol and specific spec keys.
+The =core= unit contains the specific spec keys.
 
 ** corpus folder
 
