@@ -5,6 +5,10 @@
   [clojure.string :as str]
   [duct.logger :refer [log]]
   [clojure.test :refer :all]
+  [clojure.spec.test.alpha :as stest]
+  [clojure.spec.gen.alpha :as gen]
+  [nlpcore.protocols :as core]
+  [nlpcore.spec :as nsp]
   [nlptools.module.db :as db]
   [nlptools.corpus.core :as corpus])
   (:import
@@ -46,18 +50,25 @@
 
 
 (defrecord ClaimCorpus [id filepath db logger]
-  corpus/Corpus
+  core/Corpus
   (build-corpus! [this]
-    (log logger :info ::creating-corpus {:file filepath})
+    (log @logger :info ::creating-corpus {:file filepath})
     (db/query db ["select sheet_text as text from  sheets where subsidiary_id = 1"]
             filter-row
             (partial write-corpus! filepath))
     this)
-  (get-id [this] id))
+  (get-corpus [this] filepath))
  
+
+(extend ClaimCorpus
+  core/Module
+  core/default-module-impl)
+
 (defmethod ig/init-key ukey [_ spec]
-  (let [{:keys [id db filepath logger]} spec]
-    (->ClaimCorpus id filepath db logger)))
+  (let [{:keys [id db filepath logger]} spec
+        corpus (->ClaimCorpus id filepath db (atom nil))]
+    (core/set-logger! corpus logger)
+    corpus))
 
 
 

@@ -4,8 +4,9 @@
    [clojure.test :refer :all]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
    [nlptools.tool.core :as tool]
-   [nlptools.model.core :as modl]
    [nlptools.span :as nspan]
    [nlptools.spec :as spec]
    [nlptools.command :as cmd])
@@ -28,10 +29,10 @@
 (derive ukey tool/corekey)
 
 (defmethod ig/pre-init-spec ukey [_]
-  (spec/known-keys :req-un [:nlptools/id
-                            :nlptools/model
+  (nsp/known-keys :req-un [:nlpcore/id
+                            :nlpcore/model
                             :nlptools/tokenizer 
-                            :nlptools/logger]))
+                            :nlpcore/logger]))
 
 
 
@@ -53,24 +54,26 @@
             matches vals))))
 
 (defrecord EntityTool [id model tokenizer finder logger]
-  tool/Tool
+  core/Tool
   (build-tool! [this]
-    (log @logger :debug ::build-tool! {:id id :model (modl/get-id model) :tokenizer (modl/get-id tokenizer) })
-    (reset! finder (make-entity-finder (modl/get-model model) (modl/get-model tokenizer) logger)))
-  (set-logger! [this newlogger]
-    (reset! logger newlogger))
-  (get-id [this] id)
-  (apply-tool [this text]
+    (log @logger :debug ::build-tool! {:id id :model (core/get-id model) :tokenizer (core/get-id tokenizer) })
+    (reset! finder (make-entity-finder (core/get-model model) (core/get-model tokenizer) logger)))
+  (apply-tool [this text _]
     (let [entities (@finder text)]
       (log @logger :debug ::apply-tool {:entities entities})
       entities)))  
+
+(extend EntityTool
+  core/Module
+  core/default-module-impl)
+
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id model tokenizer logger]} spec]
     (log logger :debug ::init {:id id})
     (let [classif (->EntityTool id model tokenizer (atom nil) (atom nil))]
-      (tool/set-logger! classif logger)
-      (tool/build-tool! classif)
+      (core/set-logger! classif logger)
+      (core/build-tool! classif)
       classif)))
 
 
@@ -96,7 +99,7 @@
                                                :logger (ig/ref :duct.logger/timbre)}})
         system (ig/init (cmd/prep-igconfig config))
         classifier (get system ukey)
-        res (tool/apply-tool classifier "Vreau un televizor")]
+        res (core/apply-tool classifier "Vreau un televizor" {})]
     (is (s/valid? ::result res))
     (is (= "televizor" (get-in (first res) [:value :value])))))
 
@@ -123,6 +126,6 @@
         system (ig/init (cmd/prep-igconfig config))
         finder (get system ukey)
         text (get opts :text "")]
-    (printf "text: %s,\nfinds: %s\n" text (tool/apply-tool finder text))
+    (printf "text: %s,\nfinds: %s\n" text (core/apply-tool finder text {}))
     (ig/halt! system)
     0))

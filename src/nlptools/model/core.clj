@@ -1,8 +1,9 @@
 (ns nlptools.model.core
-  "Model common protocol and specs"
+  "Model common keys and specs"
   (:require
    [integrant.core :as ig]
    [clojure.spec.alpha :as s]
+   [nlpcore.spec :as nsp]
    [nlptools.spec :as spec]))
 
 (def corekey
@@ -10,28 +11,22 @@
   :nlptools/model)
 
 
-(defprotocol Model
-  (load-model! [this] "Load the model")
-  (train-model! [this] "Train the model")
-  (save-model! [this] "Save the model")
-  (get-model [this] "Get the model")
-  (get-id [this] "Get the model id")
-  (set-logger! [this newlogger] "Set a new logger"))
+
 
 (s/def :model/binfile string?)
 (s/def :model/trainfile string?)
 (s/def :model/loadbin? boolean?)
 
-(s/def :model/binconfig (s/keys :req-un [:model/binfile :nlptools/logger]
-                                :opt-un [:model/trainfile :model/loadbin? :nlptools/language]))
-(s/def :model/trainconfig (s/keys :req-un [:nlptools/language :model/trainfile :model/loadbin? :nlptools/logger]
+(s/def :model/binconfig (nsp/known-keys :req-un [:model/binfile :nlpcore/logger]
+                                :opt-un [:model/trainfile :model/loadbin? :nlpcore/language]))
+(s/def :model/trainconfig (nsp/known-keys :req-un [:nlpcore/language :model/trainfile :model/loadbin? :nlpcore/logger]
                                   :opt-un [:model/binfile]))
 
 
 (defmethod ig/pre-init-spec corekey [_]
   ;; (s/or :model/binconfig :model/trainconfig))
-  (spec/known-keys :req-un [:nlptools/id :nlptools/logger]
+  (nsp/known-keys :req-un [:nlpcore/id :nlpcore/logger]
                    :opt-un [:model/binfile
                             :model/trainfile
                             :model/loadbin?
-                            :nlptools/language]))
+                            :nlpcore/language]))

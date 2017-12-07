@@ -2,19 +2,20 @@
   (:refer-clojure :exclude [test])
   (:require
    [clojure.repl :refer :all]
-   [fipp.edn :refer [pprint] :rename {pprint fipp}]
-   ;; [nlptools.core :as nlp]
-   [nlptools.tool.core :as tool]
-   [nlptools.model.core :as model]
-   [nlptools.corpus.core :as corpus]
-   [nlptools.command :as cmd]
    [clojure.tools.namespace.repl :refer [refresh]]
+   [clojure.spec.test.alpha :as stest]
+   [clojure.spec.gen.alpha :as gen]
    [clojure.java.io :as io]
    [clojure.java.jdbc :as j]
-   [duct.logger :as logger] 
+   [fipp.edn :refer [pprint] :rename {pprint fipp}]
    [integrant.core :as ig]
    [integrant.repl :refer [clear halt go init prep reset]]
-   [integrant.repl.state :refer [config system]]))
+   [integrant.repl.state :refer [config system]]
+   [duct.logger :as logger] 
+   [nlpcore.protocols :as core]
+   [nlpcore.spec :as nsp]
+   [nlptools.command :as cmd]
+   ))
 
 (defn read-config []
   (ig/read-string (slurp (io/resource "dev.edn"))))
