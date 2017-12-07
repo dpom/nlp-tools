@@ -18,7 +18,7 @@
                  [org.languagetool/language-ro "3.9" :exclusions [com.google.guava/guava]]
                  [org.apache.opennlp/opennlp-tools "1.8.3"]
                  [snowball-stemmer "0.1.0"]
-                 [dpom/nlpcore "1.0"]]
+                 [dpom/nlpcore "1.0" :exclusions [duct/logger]]]
   :pedantic? :warning
   :plugins [[lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
             [jonase/eastwood "0.2.6-beta2"]
@@ -38,7 +38,7 @@
                                   [org.clojure/tools.trace "0.7.9"]
                                   [fipp "0.6.12"]
                                   ]}
-             :uberjar {:aot [nlptools.core :exclusions [duct/logger]]}} 
+             :uberjar {:aot [nlptools.core]}} 
   :jvm-opts ["-Xmx2048m"]
   :pom-addition [:developers [:developer
                               [:name "Dan Pomohaci"]
