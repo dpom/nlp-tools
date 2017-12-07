@@ -5,6 +5,11 @@
 Architecture
 ============
 
+The nlptools development is based on:
+
+-   Integrant component (see [integrant](https://github.com/weavejester/integrant))
+-   nlpcore protocols (see [API](https://dpom.github.io/nlpcore/api/nlpcore.protocols.html))
+
 core
 ----
 
@@ -23,17 +28,24 @@ return the help string
 syntax  
 return the syntax string
 
-model
------
+model folder
+------------
 
 Contains models implementations.
 
-corpus
-------
+The `core` unit contains the specific spec keys.
+
+corpus folder
+-------------
 
 Contains corpus builder implementations.
+
+tool folder
+-----------
+
+Contains end user tools implementations.
 
 module
 ------
 
-Contains integrant modules.
+Contains integrant modules used by the other units (usually `corpus` units).
