@@ -1,4 +1,4 @@
-(defproject dpom/nlptools "0.7-dev01"
+(defproject dpom/nlptools "0.7"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :license {:name "Apache License 2.0"
