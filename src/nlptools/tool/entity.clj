@@ -6,10 +6,11 @@
    [duct.logger :refer [log]]
    [nlpcore.protocols :as core]
    [nlpcore.spec :as nsp]
-   [nlptools.tool.core :as tool]
    [nlptools.span :as nspan]
    [nlptools.spec :as spec]
-   [nlptools.command :as cmd])
+   [nlptools.test :as t]
+   [nlptools.command :as cmd]
+   [nlptools.tool.core :as tool])
   (:import
    (opennlp.tools.tokenize Tokenizer)
    (opennlp.tools.util Span)
@@ -65,7 +66,10 @@
 
 (extend EntityTool
   core/Module
-  core/default-module-impl)
+  (merge core/default-module-impl
+         {:get-features (fn [{:keys [model tokenizer]}] (merge (core/get-features model)
+                                                           (core/get-features tokenizer)
+                                                           {:type :entity-extractor}))})
 
 
 (defmethod ig/init-key ukey [_ spec]
@@ -85,23 +89,16 @@
 (s/def ::entity-item (s/keys :req-un [::entity ::value ::confidence ::start ::end]))
 (s/def ::result (s/coll-of ::entity-item))
 
-(deftest apply-tool-test
-  (let [config (merge (cmd/make-test-logger :error)
-                      {ukey {:id "test entity"
-                             :tokenizer (ig/ref :nlptools.model.tokenizer/simple)
-                             :model (ig/ref :nlptools.model/entity)
-                             :logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model.tokenizer/simple {:id "test tokenizer"
-                                                         :logger (ig/ref :duct.logger/timbre)}
-                       :nlptools.model/entity {:id "test model"
-                                               :binfile "test/category.bin"
-                                               :loadbin? true
-                                               :logger (ig/ref :duct.logger/timbre)}})
-        system (ig/init (cmd/prep-igconfig config))
-        classifier (get system ukey)
-        res (core/apply-tool classifier "Vreau un televizor" {})]
-    (is (s/valid? ::result res))
-    (is (= "televizor" (get-in (first res) [:value :value])))))
+(deftest tool-entity-test
+  (let [tool (t/get-test-module "test/config_tool_entity_1.edn" ukey)]
+    (testing "get-features"
+      (is (= {}
+             (core/get-features tool))))
+    (testing "apply-tool"
+      (let [res (core/apply-tool tool "Vreau un televizor" {})]
+        (is (s/valid? ::result res))
+        (is (= "televizor" (get-in (first res) [:value :value])))))
+  ))
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - extract entity from a text"))
