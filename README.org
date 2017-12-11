@@ -68,7 +68,7 @@ For lein add to your project.clj:
 [[https://clojars.org/dpom/nlptools][https://img.shields.io/clojars/v/dpom/nlptools.svg]]
 
 
-See the [[https://dpom.github.io/nlp-tools][documentation]] for more information.
+See the [[https://dpom.github.io/nlp-tools][documentation]]  and [[https://dpom.github.io/nlp-tools/api/index.html][API]] for more information.
 
 ** License
 
