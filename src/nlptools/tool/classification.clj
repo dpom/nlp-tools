@@ -1,14 +1,15 @@
 (ns nlptools.tool.classification
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
    [integrant.core :as ig]
    [duct.logger :refer [log]]
-   [clojure.test :refer :all]
    [nlpcore.protocols :as core]
    [nlpcore.spec :as nsp]
-   [nlptools.tool.core :as tool]
    [nlptools.spec :as spec]
-   [nlptools.command :as cmd])
+   [nlptools.test :as t]
+   [nlptools.command :as cmd]
+   [nlptools.tool.core :as tool])
   (:import
    (opennlp.tools.tokenize Tokenizer)
    (opennlp.tools.doccat DoccatModel
@@ -65,7 +66,10 @@
 
 (extend ClassificationTool
   core/Module
-  core/default-module-impl)
+  (merge core/default-module-impl
+         {:get-features (fn [{:keys [model tokenizer]}] (merge (core/get-features model)
+                                                               (core/get-features tokenizer)
+                                                               {:type :classification}))}))
 
 
 (defmethod ig/init-key ukey [_ spec]
@@ -83,22 +87,17 @@
 (s/def ::result (s/keys :req-un [::value ::confidence]))
 (s/def ::meta (s/keys :req-un [::confidences]))
 
-;; (deftest apply-tool-test
-;;   (let [config (merge (cmd/make-test-logger :debug)
-;;                       {ukey {:tokenizer (ig/ref :nlptools.model.tokenizer/simple)
-;;                              :model (ig/ref :nlptools.model/classification)
-;;                              :logger (ig/ref :duct.logger/timbre)}
-;;                        :nlptools.model.tokenizer/simple {:logger (ig/ref :duct.logger/timbre)}
-;;                        :nlptools.model/classification {:binfile "test/ema.bin"
-;;                                                        :loadbin? true
-;;                                                        :logger (ig/ref :duct.logger/timbre)}})
-;;         system (ig/init (cmd/prep-igconfig config))
-;;         classifier (get system ukey)
-;;         res (tool/apply-tool classifier "Vreau sa fac un cadou")]
-;;     (is (s/valid? ::result res))
-;;     (is (s/valid? ::meta (meta res)))
-;;     (is (= "cadou" (:value res)))))
-
+(deftest tool-classification-test
+  (let [tool (t/get-test-module "test/config_tool_classification_1.edn" ukey)]
+    (testing "get-features"
+      (is (= {:language "ro"
+              :type :classification}
+             (core/get-features tool))))
+    (testing "apply-tool"
+      (let [res (core/apply-tool tool "Vreau sa fac un cadou" {})]
+        (is (s/valid? ::result res))
+        ;; (is (s/valid? ::meta (meta res)))
+        (is (= "cadou" (:value res)))))))
 
 
 (defmethod cmd/help cmdkey [_]

@@ -1,13 +1,15 @@
 (ns nlptools.model.classification
   (:require
-   [integrant.core :as ig]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
+   [integrant.core :as ig]
    [duct.logger :refer [log Logger]]
    [nlpcore.protocols :as core]
    [nlpcore.spec :as nsp]
-   [nlptools.model.core :as modl]
-   [nlptools.command :as cmd])
+   [nlptools.command :as cmd]
+   [nlptools.test :as t]
+   [nlptools.model.core :as modl])
   (:import
    [opennlp.tools.doccat
     DoccatModel
@@ -53,7 +55,8 @@
 
 (extend ClassificationModel
   core/Module
-  core/default-module-impl)
+  (merge core/default-module-impl
+         {:get-features (fn [{:keys [language]}] {:language language})}))
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id language binfile trainfile loadbin? logger] :or {loadbin? true}} spec

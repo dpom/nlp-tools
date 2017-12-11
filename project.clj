@@ -1,11 +1,11 @@
-(defproject dpom/nlptools "0.6.0"
+(defproject dpom/nlptools "0.7"
   :description "Tools for Natural Language Processing"
   :url "https://dpom.github.io/nlp-tools/"
   :license {:name "Apache License 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"
             :distribution :repo}
   :min-lein-version "2.0.0"
-  :dependencies [[org.clojure/clojure "1.9.0-RC2"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.reader "1.1.1"]
                  [environ "1.1.0"]
@@ -21,7 +21,7 @@
                  [org.languagetool/language-ro "3.9" :exclusions [com.google.guava/guava]]
                  [org.apache.opennlp/opennlp-tools "1.8.3"]
                  [snowball-stemmer "0.1.0"]
-                 [dpom/nlpcore "1.0" :exclusions [duct/logger]]]
+                 [dpom/nlpcore "1.2" :exclusions [duct/logger]]]
   :pedantic? :warning
   :plugins [[lein-ancient "0.6.10" :exclusions [commons-logging org.clojure/clojure]]
             [jonase/eastwood "0.2.6-beta2"]

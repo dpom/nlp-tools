@@ -1,14 +1,16 @@
 (ns nlptools.model.entity
   (:require
-   [integrant.core :as ig]
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]
+   [integrant.core :as ig]
    [duct.logger :refer [log Logger]]
    [nlpcore.protocols :as core]
    [nlpcore.spec :as nsp]
-   [nlptools.model.core :as model]
    [nlptools.spec :as spec]
-   [nlptools.command :as cmd])
+   [nlptools.command :as cmd]
+   [nlptools.test :as t]
+   [nlptools.model.core :as model])
   (:import
    (opennlp.tools.namefind NameSampleDataStream
                            NameFinderME
@@ -67,7 +69,8 @@
 
 (extend EntityModel
   core/Module
-  core/default-module-impl)
+  (merge core/default-module-impl
+         {:get-features (fn [{:keys [entity language]}] {:entities #{(keyword entity)} :language language})}))
 
 (defmethod ig/init-key ukey [_ spec]
   (let [{:keys [id entity language binfile trainfile loadbin? logger] :or {loadbin? true}} spec
@@ -78,6 +81,20 @@
       (core/load-model! classif)
       (core/train-model! classif))
     classif))
+
+
+(deftest model-entity-test
+  (testing "get-features"
+    (is (= {:entities #{:category}
+            :language "ro"}
+           (core/get-features (t/get-test-module "test/config_model_entity_1.edn" ukey)))))
+  ;; (testing "save/load"
+  ;;   (let [model1 (t/get-test-module "test/config_model_entity_2.edn" ukey)]
+  ;;     (core/save-model! model1)
+  ;;     (let [model2 (t/get-test-module "test/config_model_entity_2b.edn" ukey)]
+  ;;       (is (= @(:model model1) @(:model model2)) "test binloading model"))))
+)
+
 
 (defmethod cmd/help cmdkey [_]
   (str (name cmdkey) " - build and save an entity model"))
@@ -102,3 +119,4 @@
     (printf "the %s entity model trained with %s was saved in %s\n" text in out)
     (ig/halt! system)
     0))
+
