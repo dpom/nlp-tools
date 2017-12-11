@@ -1,0 +1,24 @@
+{
+ :nlptools.tool/classification {:id "test-tool-classification"
+                                :tokenizer #ig/ref :nlptools.model.tokenizer/simple
+                                :model #ig/ref :nlptools.model/classification
+                                :logger #ig/ref :duct.logger/timbre}
+
+ :nlptools.model/classification {:id "test-model-classification"
+                                 :binfile "test/ema.bin"
+                                 :loadbin? true
+                                 :language "ro"
+                                 :trainfile "test/ema.train"
+                                 :logger #ig/ref :duct.logger/timbre}
+
+ :nlptools.model.tokenizer/simple {:id "simple-tokenizer"
+                                   :logger #ig/ref :duct.logger/timbre}
+
+ :duct.logger/timbre {:level    :report
+                      :set-root-config? true
+                      :appenders {:duct.logger.timbre/brief #ig/ref :duct.logger.timbre/brief}},
+
+
+ :duct.logger.timbre/brief {:min-level :report},
+ 
+ }

@@ -69,7 +69,7 @@
   (merge core/default-module-impl
          {:get-features (fn [{:keys [model tokenizer]}] (merge (core/get-features model)
                                                            (core/get-features tokenizer)
-                                                           {:type :entity-extractor}))})
+                                                           {:type :entity-extractor}))}))
 
 
 (defmethod ig/init-key ukey [_ spec]
@@ -92,7 +92,9 @@
 (deftest tool-entity-test
   (let [tool (t/get-test-module "test/config_tool_entity_1.edn" ukey)]
     (testing "get-features"
-      (is (= {}
+      (is (= {:entities #{:category},
+              :language "ro",
+              :type :entity-extractor}
              (core/get-features tool))))
     (testing "apply-tool"
       (let [res (core/apply-tool tool "Vreau un televizor" {})]

@@ -52,10 +52,13 @@
     (log @logger :debug ::train-model! {:id "SimpleTokenizer" :action :no-action}))
   (save-model! [this]
     (log @logger :debug ::save-model! {:id "SimpleTokenizer" :action :no-action}))
-  (get-model [this] SimpleTokenizer/INSTANCE)
+  (get-model [this] SimpleTokenizer/INSTANCE))
+
+(extend SimpleTokModel
   core/Module
-  (get-id [this] "SimpleTokenizer")
-  (set-logger! [this newlogger] (reset! logger newlogger)))
+  (merge core/default-module-impl
+         {:get-id (fn [_] "SimpleTokenizer")}))
+
 
 (defrecord WhitespaceTokModel [logger]
   core/Model
@@ -65,11 +68,12 @@
     (log @logger :debug ::train-model!  {:action :no-action}))
   (save-model! [this]
     (log @logger :debug ::save-model! {:action :no-action}))
-  (get-model [this] WhitespaceTokenizer/INSTANCE)
-  core/Module
-  (get-id [this] "WhitespaceTokenizer")
-  (set-logger! [this newlogger] (reset! logger newlogger)))
+  (get-model [this] WhitespaceTokenizer/INSTANCE))
 
+(extend WhitespaceTokModel
+  core/Module
+  (merge core/default-module-impl
+         {:get-id (fn [_] "WhitespaceTokenizer")}))
 
 (defmethod ig/init-key ::simple [_ spec]
   (let [{:keys [logger]} spec
