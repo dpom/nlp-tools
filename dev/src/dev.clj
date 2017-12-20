@@ -6,6 +6,7 @@
    [clojure.spec.test.alpha :as stest]
    [clojure.spec.gen.alpha :as gen]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.java.jdbc :as j]
    [fipp.edn :refer [pprint] :rename {pprint fipp}]
    [integrant.core :as ig]

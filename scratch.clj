@@ -441,3 +441,83 @@ start and end positions of the span."
 (def res (tool/apply-tool tool "Vreau sa cumpar un cadou")) 
 
 (meta res) 
+
+;; 2017-12-07
+
+(require '[cheshire.core :as json]) 
+
+(def filename "test/products.json")
+
+(def products (json/parsed-seq (io/reader filename))) 
+
+(def prod  (first products)) 
+
+(def text (get prod "text")) 
+
+
+(def entities (get-in prod ["data" 0 "children"])) 
+ 
+[{"sourceId" "1176265", "name" "Samsung Protectie pentru spate Clear Silver pentru G930 Galaxy S7", "link" "https://www.pcgarage.ro/huse/samsung/protectie-pentru-spate-ef-qg930-clear-silver-pentru-g930-galaxy-s7/", "productImage" nil, "model" 1176265, "price" {"activePrice" 69.99, "currency" "RON", "availability" "Doar 1 produs in stoc, comanda acum", "fullPrice" 85.98}}] 
+
+(require '[clojure.string :as str]) 
+
+(def text2 (str/replace (str/trim text) #"\s{2,}" " "))
+
+(defn clean-text [t]
+  (-> t
+       str/trim
+       (str/replace #"\n" " ")
+       (str/replace #"\s{2,}" " "))) 
+
+(clean-text text) 
+
+(defn write-corpus! [infile outfile]
+  (with-open [^java.io.BufferedWriter w (io/writer outfile)]
+    (doseq [item (json/parsed-seq (io/reader infile))]
+      (let [text (clean-text (get item "text"))
+            entities (get-in item ["data" 0 "children"])]
+        (.write w text)
+        (.write w "\n")
+        (.write w (with-out-str (fipp entities)))
+        (.write w "\n\n")
+        ))))
+
+(write-corpus! "test/products.json" "test/products.train") 
+
+;; 2017-12-20
+
+(require '[cheshire.core :as json]) 
+
+(import '[org.jsoup Jsoup])
+
+(def in-test "tmp/crawl/data-Altex.log")
+
+(def out-test "crawl.edn")
+
+(defn strip-html-tags
+  "Function strips HTML tags from string."
+  [s]
+  (.text (.body (Jsoup/parse s))))
+
+
+(defn clean-text [t]
+  (-> t
+      strip-html-tags
+      str/trim
+      (str/replace #"\n" " ")
+      (str/replace #"\s{2,}" " "))) 
+
+(defn write-corpus! [infile outfile]
+  (with-open [^java.io.BufferedWriter w (io/writer outfile)]
+    (doseq [item (json/parsed-seq (io/reader infile))]
+      (let [text (clean-text (get item "html"))
+            entities (get-in item ["data" 0 "children"])]
+        (.write w text)
+        (.write w "\n")
+        (.write w (with-out-str (fipp entities)))
+        (.write w "\n\n")
+        ))))
+
+(write-corpus! in-test out-test) 
+
+

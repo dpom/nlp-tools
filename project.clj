@@ -13,6 +13,8 @@
                  ;; [duct/logger "0.2.1"]
                  [duct/logger.timbre "0.4.1"]
                  ;; [com.fzakaria/slf4j-timbre "0.3.7"]
+                 [cheshire "5.8.0"]
+                 [hickory "0.7.1"]
                  [org.clojure/java.jdbc "0.7.3"]
                  [mysql/mysql-connector-java "5.1.44"]
                  [hikari-cp "1.7.6"]

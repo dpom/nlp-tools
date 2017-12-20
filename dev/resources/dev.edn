@@ -1,12 +1,12 @@
 {
 
- :nlptools.tool/entity {:model #ig/ref :nlptools.model/entity
-                        :logger #ig/ref :duct.logger/timbre
-                        :tokenizer #ig/ref :nlptools.model.tokenizer/simple}
+ ;; :nlptools.tool/entity {:model #ig/ref :nlptools.model/entity
+ ;;                        :logger #ig/ref :duct.logger/timbre
+ ;;                        :tokenizer #ig/ref :nlptools.model.tokenizer/simple}
 
- :nlptools.model/entity {:loadbin? true
-                         :binfile "test/category.bin"
-                         :logger #ig/ref :duct.logger/timbre}
+ ;; :nlptools.model/entity {:loadbin? true
+ ;;                         :binfile "test/category.bin"
+ ;;                         :logger #ig/ref :duct.logger/timbre}
 
  ;; :nlptools.tool/stemmer {:language "ro"
  ;;                          :logger   #ig/ref :duct.logger/timbre}
@@ -14,17 +14,17 @@
  ;; :nlptools.tool/stopwords {:tokenizer #ig/ref :nlptools.model.tokenizer/simple
  ;;                           :logger #ig/ref :duct.logger/timbre}
 
- :nlptools.tool/classification {:tokenizer #ig/ref :nlptools.model.tokenizer/simple
-                                :model #ig/ref :nlptools.model/classification
-                                :logger #ig/ref :duct.logger/timbre}
+ ;; :nlptools.tool/classification {:tokenizer #ig/ref :nlptools.model.tokenizer/simple
+ ;;                                :model #ig/ref :nlptools.model/classification
+ ;;                                :logger #ig/ref :duct.logger/timbre}
 
- :nlptools.model.tokenizer/simple {:logger #ig/ref :duct.logger/timbre}
+ ;; :nlptools.model.tokenizer/simple {:logger #ig/ref :duct.logger/timbre}
 
- :nlptools.model/classification {:binfile "test/ema.bin"
-                                 :loadbin? true
-                                 :language "ro"
-                                 :trainfile "test/ema.train"
-                                 :logger #ig/ref :duct.logger/timbre}
+ ;; :nlptools.model/classification {:binfile "test/ema.bin"
+ ;;                                 :loadbin? true
+ ;;                                 :language "ro"
+ ;;                                 :trainfile "test/ema.train"
+ ;;                                 :logger #ig/ref :duct.logger/timbre}
 
 
  ;; :nlptools.corpus/intent {:db       #ig/ref :nlptools.module/mongo
